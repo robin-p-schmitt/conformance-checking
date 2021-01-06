@@ -1,0 +1,23 @@
+image: continuumio/miniconda3:latest
+
+before_script:
+  - conda --version  # Print out python version for debugging
+  - apt install jq
+  - cd Code
+
+test:
+  script:
+    - conda install -f conda-env.yml
+    - conda activate conformance-checking
+    - tox
+
+# pages:
+#   script:
+#     - pip install sphinx sphinx-rtd-theme
+#     - cd doc ; make html
+#     - mv build/html/ ../public/
+#   artifacts:
+#     paths:
+#       - public
+#   only:
+#     - master
