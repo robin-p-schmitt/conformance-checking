@@ -8,6 +8,7 @@ before_script:
 
 test:
   script:
+    - conda init bash
     - conda env create -f conda-env.yml
     - conda activate conformance-checking
     - tox
