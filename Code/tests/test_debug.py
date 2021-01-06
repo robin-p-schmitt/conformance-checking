@@ -8,4 +8,4 @@ def test_debug():
     """
     if time.time() == 0:
         print("Hi!")
-    assert "foobar".removeprefix("foo") == "bar"
+    assert int("1") == 1
