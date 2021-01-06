@@ -2,7 +2,8 @@ image: continuumio/miniconda3:latest
 
 before_script:
   - conda --version  # Print out python version for debugging
-  - apt install jq
+  - apt-get update
+  - apt-get install -y jq
   - cd Code
 
 test:
