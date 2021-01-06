@@ -8,7 +8,7 @@ before_script:
 
 test:
   script:
-    - conda install -f conda-env.yml
+    - conda env create -f conda-env.yml
     - conda activate conformance-checking
     - tox
 
