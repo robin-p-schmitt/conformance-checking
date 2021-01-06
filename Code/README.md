@@ -45,6 +45,36 @@ pytest --cov --cov-report=html
 This will create a HTML report.
 Just open `htmlcov/index.html` with your browser.
 
+Consider the following code as an example:
+
+```python
+import time
+
+
+
+def test_debug():
+    """A test comment
+
+    >>> 1 + 1
+    3
+    """
+
+    i = 0
+    if time.time() == 0:
+        print("Hi!")
+    assert "foobar".removeprefix("foo") == "bar"
+```
+
+There are several problems with this code, which will be pointed out by the test framework:
+
+- *black* will report an extra newline before the function definition which is prohibited by PEP 8.
+- *tox* will find out that the *pytest* test suite will fail on Python versions < 3.9.
+- *flake8* will fail warning the declaration of an unused variable `i`.
+- *doctest* will fail pointing out that `1 + 1` evaluates to `2` and not `3`.
+
+To solve formatting issues, one can simply run `black path/to/file`.
+If you want to see a diff first, add `--diff`.
+
 
 ## Dependency Management
 Our dependencies are listed in `conda-env.yml` and `tox.ini`.

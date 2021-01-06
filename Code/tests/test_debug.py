@@ -1,3 +1,5 @@
+# This file is just for demonstration purposes.
+# Delete it as soon as actual tests are there.
 import time
 
 
