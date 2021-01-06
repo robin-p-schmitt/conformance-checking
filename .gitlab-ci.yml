@@ -1,7 +1,7 @@
 image: continuumio/miniconda3:latest
 
 before_script:
-  - conda --version  # Print out python version for debugging
+  - conda --version  # Print out conda version for debugging
   - cd Code
 
 test:
@@ -12,6 +12,7 @@ test:
     - conda activate conformance-checking
     - tox
 
+# Example template for automatic documentation creation. Not implemented yet.
 # pages:
 #   script:
 #     - pip install sphinx sphinx-rtd-theme
