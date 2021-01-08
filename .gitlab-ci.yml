@@ -1,0 +1,25 @@
+image: continuumio/miniconda3:latest
+
+before_script:
+  - conda --version  # Print out conda version for debugging
+  - cd Code
+
+test:
+  script:
+    - conda init bash
+    - source ~/.bashrc
+    - conda env create -f conda-env.yml
+    - conda activate conformance-checking
+    - tox
+
+# Example template for automatic documentation creation. Not implemented yet.
+# pages:
+#   script:
+#     - pip install sphinx sphinx-rtd-theme
+#     - cd doc ; make html
+#     - mv build/html/ ../public/
+#   artifacts:
+#     paths:
+#       - public
+#   only:
+#     - master
