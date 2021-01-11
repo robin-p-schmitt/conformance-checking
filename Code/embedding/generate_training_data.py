@@ -7,46 +7,6 @@ from tensorflow.keras.layers import Activation, Dense, Dot, Embedding, Flatten, 
 
 from models import Act2Vec, Trace2Vec
 
-class Act2Vec(Model):
-  def __init__(self, vocab_size, embedding_dim, num_ns):
-    super(Act2Vec, self).__init__()
-    self.target_embedding = Embedding(vocab_size, 
-                                      embedding_dim,
-                                      input_length=1,
-                                      name="w2v_embedding", )
-    self.context_embedding = Embedding(vocab_size, 
-                                       embedding_dim, 
-                                       input_length=num_ns+1)
-    self.dots = Dot(axes=(3,2))
-    self.flatten = Flatten()
-
-  def call(self, pair):
-    target, context = pair
-    we = self.target_embedding(target)
-    ce = self.context_embedding(context)
-    dots = self.dots([ce, we])
-    return self.flatten(dots)
-
-class Trace2Vec(Model):
-  def __init__(self, vocab_size, embedding_dim, num_ns):
-    super(Trace2Vec, self).__init__()
-    self.target_embedding = Embedding(vocab_size, 
-                                      embedding_dim,
-                                      input_length=1,
-                                      name="w2v_embedding", )
-    self.context_embedding = Embedding(vocab_size, 
-                                       embedding_dim, 
-                                       input_length=num_ns+1)
-    self.dots = Dot(axes=(3,2))
-    self.flatten = Flatten()
-
-  def call(self, pair):
-    target, context = pair
-    we = self.target_embedding(target)
-    ce = self.context_embedding(context)
-    dots = self.dots([ce, we])
-    return self.flatten(dots)
-
 def generate_activity_vocab(log):
 	# extract all the activities (without duplicates) from traces, and save them in activies
 	vocab, index = {}, 0  # start indexing form 1
