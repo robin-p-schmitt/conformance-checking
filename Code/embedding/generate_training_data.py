@@ -18,6 +18,15 @@ def generate_activity_vocab(log):
 
 	return vocab
 
+def generate_trace_vocab(log):
+	vocab, index = {}, 0
+	for trace in log:
+		if trace not in vocab:
+			vocab[trace] = index
+			index += 1
+
+	return vocab
+
 def vectorize_trace(trace, vocab):
 	vectorized_trace = []
 	for activity in trace:
@@ -28,7 +37,7 @@ def vectorize_trace(trace, vocab):
 
 # assuming that traces are strings in form of e.g. "abcddedegf", each alphabet representing an activity
 # and that log is a collection of such traces
-def generate_training_data(log, vocab, window_size, num_ns):
+def generate_act2vec_training_data(log, vocab, window_size, num_ns):
 	targets, contexts, labels = [], [], []
 
 	# # extract all the activities (without duplicates) from traces, and save them in activies
@@ -76,12 +85,48 @@ def generate_training_data(log, vocab, window_size, num_ns):
 
 	return targets, contexts, labels
 
+def generate_trace2vec_training_data(log, vocab_act, vocab_trace, window_size):
+	traces, contexts, labels = [], [], []
+
+	act_vocab_size = len(vocab_act)
+
+	for trace in tqdm.tqdm(log):
+		vectorized_trace = vectorized_trace(trace, vocab_act)
+
+		#positive_skip_grams, _ = tf.keras.preprocessing.sequence.skipgrams(vectorized_trace, vocabulary_size=vocab_size, window_size=window_size, negative_samples=0)
+
+		for i, activity in enumerate(trace):
+			
+			label = np.zeros(act_vocab_size)
+			label[target_activity] = 1
+			
+			trace_index = vocab_trace(trace)
+
+			traces.append(trace_index)
+			contexts.append(get_context(trace, i, window_size))
+			labels.append(label)
+
+	return traces, contexts, labels		
+
+def get_context(trace, index, window_size):
+	left = max(0, index - window_size)
+	right = min(len(trace) - 1, index + window_size)
+	left_num_padding = window_size - (index - left)
+	right_num_padding = window_size - (right - index)
+	num_padding = left_num_padding + right_num_padding
+
+	context = trace[left:right+1] + [0] * num_padding
+	context.remove(trace[index])
+
+	return context
+
+
 traces = ["abcdefghij"] * 512
 vocab = generate_activity_vocab(traces)
 num_ns = 4
 window_size = 3
 
-targets, contexts, labels = generate_training_data(traces, vocab, window_size, num_ns)
+targets, contexts, labels = generate_act2vec_training_data(traces, vocab, window_size, num_ns)
 
 BATCH_SIZE = 1024
 BUFFER_SIZE = 10000
