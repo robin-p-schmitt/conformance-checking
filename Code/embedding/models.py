@@ -1,5 +1,6 @@
 from tensorflow.keras import Model, Sequential
-from tensorflow.keras.layers import Activation, Dense, Dot, Embedding, Flatten, GlobalAveragePooling1D, Reshape, Average
+from tensorflow.keras.layers import Activation, Dense, Dot, Embedding, Flatten, GlobalAveragePooling1D, Reshape, Average, Concatenate
+import numpy as np
 
 class Act2Vec(Model):
   def __init__(self, vocab_size, embedding_dim, num_ns):
@@ -27,16 +28,28 @@ class Trace2Vec(Model):
     super(Trace2Vec, self).__init__()
     self.act_embedding = Embedding(act_vocab_size, 
                                       embedding_dim,
-                                      input_length=context_size)
+                                      input_length=1)
     self.trace_embedding = Embedding(trace_vocab_size, 
                                        embedding_dim, 
                                        input_length=1)
+    self.concatenate = Concatenate(axis=0)
     self.average = Average()
     self.dense = Dense(act_vocab_size, activation="softmax")
 
   def call(self, pair):
     trace, act_context = pair
-    act_emb = self.act_embedding(act_context)
+    context_emb = []
+
+    for context in act_context:
+      emb = self.act_embedding(context)
+      context_emb.append(emb)
+
+    #act_emb = self.act_embedding(act_context)
     trace_emb = self.trace_embedding(trace)
-    average = self.average(act_emb + [trace_emb])
+
+    concatenate = self.concatenate([act_emb, trace_emb])
+    average = self.average([*concatenate])
     return self.dense(average)
+
+# model = Act2Vec(10, 5, 1)
+# print(model((1, np.array([2, 3]))))
