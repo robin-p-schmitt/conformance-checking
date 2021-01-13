@@ -7,17 +7,17 @@ def example():
         @staticmethod
         def _calc_embeddings(model_traces, real_traces):
             model_embeddings = np.asarray(
-                [[len(t)] for t in model_traces], dtype=np.float32
+                [len(t) for t in model_traces], dtype=np.float32
             )
             real_embeddings = np.asarray(
-                [[len(t)] for t in real_traces], dtype=np.float32
+                [len(t) for t in real_traces], dtype=np.float32
             )
             return model_embeddings, real_embeddings
 
         @staticmethod
         def _calc_dissimilarity(model_embedding, real_embedding):
-            max_len = max(model_embedding[0], real_embedding[0])
-            min_len = min(model_embedding[0], real_embedding[0])
+            max_len = max(model_embedding, real_embedding)
+            min_len = min(model_embedding, real_embedding)
             if max_len == 0:
                 return 0
             else:
@@ -54,30 +54,12 @@ def check_algorithm(algorithm):
     model_embeddings, real_embeddings = algorithm._calc_embeddings(
         model_traces, real_traces
     )
-    assert isinstance(
-        model_embeddings, np.ndarray
-    ), "Model embeddings should be a NumPy array!"
-    assert isinstance(
-        real_embeddings, np.ndarray
-    ), "Real embeddings should be a NumPy array!"
-    assert (
-        model_embeddings.dtype == np.float32
-    ), "Model embeddings should have type float32!"
-    assert (
-        real_embeddings.dtype == np.float32
-    ), "Real embeddings should have type float32!"
-    assert len(model_embeddings.shape) >= 2 and model_embeddings.shape[0] == len(
+    assert len(model_embeddings) == len(
         model_traces
-    ), (
-        "Model embeddings should be of shape num_traces x embedding_shape! Got: %s"
-        % str(model_embeddings.shape)
-    )
-    assert len(real_embeddings.shape) >= 2 and real_embeddings.shape[0] == len(
+    ), "There must be as many model embeddings as model traces!"
+    assert len(real_embeddings) == len(
         real_traces
-    ), (
-        "Real embeddings should be of shape num_traces x embedding_shape! Got: %s"
-        % str(real_embeddings.shape)
-    )
+    ), "There must be as many real embeddings as real traces!"
 
     # check dissimilarity function
     for model_trace, model_embedding in zip(model_traces, model_embeddings):

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 import numpy as np
 
@@ -74,21 +74,18 @@ class EmbeddingConformance(ABC):
     @abstractmethod
     def _calc_embeddings(
         model_traces: List[List[str]], real_traces: List[List[str]]
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> Tuple[List[Any], List[Any]]:
         """Calculates the embeddings of the traces.
 
         :param model_traces: The traces coming from the model.
         :param real_traces: The traces coming from the real log.
-        :return: The NumPy embedding matrices for the model and real log.
-        Each is of shape num_traces x embedding_shape.
+        :return: The embeddings of the traces of the model and real log.
         """
         pass  # pragma: no cover
 
     @staticmethod
     @abstractmethod
-    def _calc_dissimilarity(
-        model_embedding: np.ndarray, real_embedding: np.ndarray
-    ) -> float:
+    def _calc_dissimilarity(model_embedding: Any, real_embedding: Any) -> float:
         """Calculates the dissimilarity between two embeddings.
 
         :param model_embedding: the embedding of the model trace
