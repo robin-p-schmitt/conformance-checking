@@ -28,28 +28,21 @@ class Trace2Vec(Model):
     super(Trace2Vec, self).__init__()
     self.act_embedding = Embedding(act_vocab_size, 
                                       embedding_dim,
-                                      input_length=1)
+                                      input_length=context_size)
     self.trace_embedding = Embedding(trace_vocab_size, 
                                        embedding_dim, 
                                        input_length=1)
-    self.concatenate = Concatenate(axis=0)
+    self.concatenate = Concatenate(axis=1)
     self.average = Average()
+    self.flatten = Flatten()
     self.dense = Dense(act_vocab_size, activation="softmax")
 
   def call(self, pair):
     trace, act_context = pair
-    context_emb = []
 
-    for context in act_context:
-      emb = self.act_embedding(context)
-      context_emb.append(emb)
-
-    #act_emb = self.act_embedding(act_context)
+    act_emb = self.act_embedding(act_context)
     trace_emb = self.trace_embedding(trace)
 
     concatenate = self.concatenate([act_emb, trace_emb])
-    average = self.average([*concatenate])
-    return self.dense(average)
-
-# model = Act2Vec(10, 5, 1)
-# print(model((1, np.array([2, 3]))))
+    #average = self.average([*concatenate])
+    return self.dense(self.flatten(concatenate))
