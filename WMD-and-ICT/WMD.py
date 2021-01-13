@@ -12,13 +12,8 @@ def _calc_dissimilarity(model_embedding, real_embedding):
     the maximum dissimilarity
     """
 
-    whole_embedding = {}
-    for key in list(set(model_embedding) | set(real_embedding)):
-        if model_embedding.get(key) and real_embedding.get(key):
-            whole_embedding.update({key: model_embedding.get(key) + real_embedding.get(key)})
-        else:
-            whole_embedding.update({key: model_embedding.get(key) or real_embedding.get(key)})
-
+    whole_embedding = set(list(model_embedding.keys()) + list(real_embedding.keys()))
+    
     vocab_len = len(whole_embedding)
     # function: calculate normalized count of activity i within its trace
     def calc_d(embeddings: dict):
