@@ -9,19 +9,23 @@ class Embedding_generator:
     def __init__(self, log, trace2vec_windows_size=3, act2vec_windows_size=3, num_ns=4):
         # log is expected to be a data type of List[List[str]]
 
+        # this log is just for testing functionality
+        log = xes_importer.apply('logs/BPI_Challenge_2012.xes')
+        log = [[event["concept:name"] for event in trace] for trace in log][:2000]
+
         # create vocabulary for activities and traces
         self.act_vocab = generate_activity_vocab(log)
         self.trace_vocab = generate_trace_vocab(log, self.act_vocab)
 
-        # generate training datas for act2vec and trace2vec
+        # generate training data for act2vec and trace2vec
         self.act2vec_training_data = {}
         self.trace2vec_training_data = {}
-        self.act2vec_training_data["targets"], self.act2vec_training_data["contexts"], self.act2vec_training_data["labels"] = generate_act2vec_training_data(traces, act_vocab, window_size, num_ns)
-        self.trace2vec_training_data["targets"], self.trace2vec_training_data["contexts"], self.trace2vec_training_data["labels"] = generate_trace2vec_training_data(traces, act_vocab, trace_vocab, window_size)
+        self.act2vec_training_data["targets"], self.act2vec_training_data["contexts"], self.act2vec_training_data["labels"] = generate_act2vec_training_data(log, self.act_vocab, act2vec_windows_size, num_ns)
+        self.trace2vec_training_data["targets"], self.trace2vec_training_data["contexts"], self.trace2vec_training_data["labels"] = generate_trace2vec_training_data(log, self.act_vocab, self.trace_vocab, trace2vec_windows_size)
 
         # generate embeddings
-        activity_embedding = train_act2vec_model(1024, 10000, 128, self.act2vec_training_data["targets"], self.act2vec_training_data["contexts"], self.act2vec_training_data["labels"], num_ns)
-        trace_embedding = train_trace2vec_model(1024, 10000, 128, self.trace2vec_training_data["targets"], self.trace2vec_training_data["contexts"], self.trace2vec_training_data["labels"], act_vocab, trace_vocab, window_size)
+        self.activity_embedding = self.train_act2vec_model(self.act2vec_training_data["targets"], self.act2vec_training_data["contexts"], self.act2vec_training_data["labels"], self.act_vocab, num_ns)
+        self.trace_embedding = self.train_trace2vec_model(self.trace2vec_training_data["targets"], self.trace2vec_training_data["contexts"], self.trace2vec_training_data["labels"], self.act_vocab, self.trace_vocab, trace2vec_windows_size)
 
     def train_act2vec_model(self, targets, contexts, labels, vocab, num_ns, batch_size=1024, buffer_size=10000, embedding_dim=128):
         dataset = tf.data.Dataset.from_tensor_slices(((targets, contexts), labels))
@@ -47,8 +51,11 @@ class Embedding_generator:
 
         return trace2vec.get_trace_embedding()
 
+    '''
+    
+    '''
     def get_activity_embedding(self):
         return self.activity_embedding
 
     def get_trace_embedding(self):
-        return self,trace_embedding
+        return self.trace_embedding
