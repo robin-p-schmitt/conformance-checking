@@ -6,64 +6,62 @@ import pandas as pd
 import pm4py
 
 
-class ImportData:
-    """This class is used to import event logs and process models and provides a method
-    for generating a playout of a petry-net.
+def import_xes(path_to_log_file):
+    """Import an event log from a .xes file and return a List[List[str]],
+    where the entry i,j is the j-th activity name of the i-th trace.
+    :param path_to_log_file: a path to the log file to be imported
+    :return: List[List[str]],where the entry i,j is the
+    j-th activity name of the i-th trace.
+    """
+    event_log = pm4py.read_xes(path_to_log_file)
+
+    return [[event["concept:name"] for event in trace] for trace in event_log]
+
+
+def import_csv(path_to_log_file):
+    """Import an event log from a .csv file  and return a List[List[str]],
+    where the entry i,j is the j-th activity name of the i-th trace.
+    :param path_to_log_file: a path to the log file to be imported
+    :return: List[List[str]],where the entry i,j is the
+    j-th activity name of the i-th trace.
+    """
+    event_log = pd.read_csv(path_to_log_file, sep=";")
+    event_log = pm4py.format_dataframe(
+        event_log,
+        case_id="case_id",
+        activity_key="activity",
+        timestamp_key="timestamp",
+    )
+
+    return [[event["concept:name"] for event in trace] for trace in event_log]
+
+
+def import_petri_net(path_to_model_file):
+    """Import a petri net from a .pnml file.
+    :param path_to_model_file: a path to the petri net file to be imported
+    :return: a petri net, an initial marking and a final marking
+    """
+    net, initial_marking, final_marking = pm4py.read_petri_net(path_to_model_file)
+
+    return net, initial_marking, final_marking
+
+
+def generate_playout(net, initial_marking, final_marking):
+    """Generate a playout given a petri net, initial_marking and final_marking
+    and return a List[List[str]], where the entry i,j is the j-th activity
+    name of the i-th trace.
+    :param net: a petri net
+    :param initial_marking: the initial marking of the petri net
+    :param final_marking: the final marking of a petri net
+    :return: a List[List[str]], where the entry i,j is the j-th activity name
+    of the i-th trace.
     """
 
-    def import_xes(path_to_log_file):
-        """Import an event log, starting and ending activities from a .xes file.
-        :param path_to_log_file: a path to the log file to be imported
-        :return: a list whos indicies correspont to
-        event_log, start_activities, end_activities respectively
-        """
-        event_log = pm4py.read_xes(path_to_log_file)
-        start_activities = pm4py.get_start_activities(event_log)
-        end_activities = pm4py.get_end_activities(event_log)
+    playout_log = pm4py.simulation.playout.simulator.apply(
+        net, initial_marking, final_marking=final_marking
+    )
 
-        return [event_log, start_activities, end_activities]
-
-    def import_csv(path_to_log_file):
-        """Import an event log, starting and ending activities from a .csv file.
-        :param path_to_log_file: a path to the log file to be imported
-        :return: a list, whose indicies correspont to
-        event_log, start_activities, end_activities respectively
-        """
-        event_log = pd.read_csv(path_to_log_file, sep=";")
-        event_log = pm4py.format_dataframe(
-            event_log,
-            case_id="case_id",
-            activity_key="activity",
-            timestamp_key="timestamp",
-        )
-        start_activities = pm4py.get_start_activities(event_log)
-        end_activities = pm4py.get_end_activities(event_log)
-
-        return [event_log, start_activities, end_activities]
-
-    def import_petry_net(path_to_modell_file):
-        """Import a petri net from a .pnml file.
-        :param path_to_modell_file: a path to the petri net file to be imported
-        :return: a list whose indicies correspond to net, initial_marking, final_marking
-         respectively.
-        """
-        net, initial_marking, final_marking = pm4py.read_petri_net(path_to_modell_file)
-
-        return [net, initial_marking, final_marking]
-
-    def generate_playout(net, initial_marking, final_marking):
-        """Generate a playout given a petri net, initial_marking and final_marking
-        :param net: a petri net
-        :param initial_marking: the initial marking of the petri net
-        :param final_marking: the final marking of a petri net
-        :return: a playout log of the petri net
-        """
-
-        playout_log = pm4py.simulation.playout.simulator.apply(
-            net, initial_marking, final_marking=final_marking
-        )
-
-        return playout_log
+    return [[event["concept:name"] for event in trace] for trace in playout_log]
 
 
 class DissimilarityMatrix:
