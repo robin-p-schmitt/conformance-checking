@@ -11,7 +11,7 @@ class ImportData:
     for generating a playout of a petry-net.
     """
 
-    def import_xes(self, path_to_log_file):
+    def import_xes(path_to_log_file):
         """Import an event log, starting and ending activities from a .xes file.
         :param path_to_log_file: a path to the log file to be imported
         :return: a list whos indicies correspont to
@@ -23,7 +23,7 @@ class ImportData:
 
         return [event_log, start_activities, end_activities]
 
-    def import_csv(self, path_to_log_file):
+    def import_csv(path_to_log_file):
         """Import an event log, starting and ending activities from a .csv file.
         :param path_to_log_file: a path to the log file to be imported
         :return: a list, whose indicies correspont to
@@ -41,7 +41,7 @@ class ImportData:
 
         return [event_log, start_activities, end_activities]
 
-    def import_petry_net(self, path_to_modell_file):
+    def import_petry_net(path_to_modell_file):
         """Import a petri net from a .pnml file.
         :param path_to_modell_file: a path to the petri net file to be imported
         :return: a list whose indicies correspond to net, initial_marking, final_marking
@@ -51,7 +51,7 @@ class ImportData:
 
         return [net, initial_marking, final_marking]
 
-    def generate_playout(self, net, initial_marking, final_marking):
+    def generate_playout(net, initial_marking, final_marking):
         """Generate a playout given a petri net, initial_marking and final_marking
         :param net: a petri net
         :param initial_marking: the initial marking of the petri net
