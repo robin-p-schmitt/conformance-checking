@@ -126,9 +126,10 @@ def get_context(trace, index, window_size):
 	return context
 
 
+'''
 traces = ["abcdefghij"] * 512
 
-log = xes_importer.apply('logs/BPI_Challenge_2012.xes.gz')
+log = xes_importer.apply('logs/BPI_Challenge_2012.xes')
 traces = [[event["concept:name"] for event in trace] for trace in log][:2000]
 
 act_vocab = generate_activity_vocab(traces)
@@ -159,6 +160,7 @@ trace2vec.compile(optimizer='adam',
               metrics=['accuracy'])
 
 trace2vec.fit(dataset, epochs=10)
+----------------------------------------------------------------------
 
 #targets, contexts, labels = generate_act2vec_training_data(traces, act_vocab, window_size, num_ns)
 
@@ -179,7 +181,7 @@ trace2vec.fit(dataset, epochs=10)
 
 #act2vec.fit(dataset, epochs=50)
 
-
+'''
 
 
 
