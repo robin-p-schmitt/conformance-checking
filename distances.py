@@ -5,12 +5,11 @@ import collections
 from typing import Dict, Tuple
 
 def calc_wmd(model_embedding: Dict[Tuple, int], real_embedding: Dict[Tuple, int]) -> float:
-    """calculates the dissimilarity between two embeddings.
+    """calculates WMD between two embeddings.
 
     :param model_embedding: the embedding of the model trace
     :param real_embedding: the embedding of the real trace
-    :return: a floating-point value in [0, 1] where 1 isl
-    the maximum dissimilarity
+    :return: a floating-point value
     """
 
     whole_embedding = set(list(model_embedding.keys()) + list(real_embedding.keys()))
@@ -44,7 +43,16 @@ def calc_wmd(model_embedding: Dict[Tuple, int], real_embedding: Dict[Tuple, int]
 
     return dist
 
-def ACT(p, q, C, k): #for now C is new every trace comparison, ADD LATER old used for the early stopping
+def ACT(p, q, C, k): 
+    """calculates ACT between two embeddings.
+
+    :param p: a np.array contains normalized count of activity within a trace
+    :param q: a np.array contains normalized count of activity within a trace
+    :param C: dissimilar matrix of these two traces
+    :param k: number of edges considered per activity
+    :return: a floating-point value
+    """
+
     t = 0
     for i in range(0, len(p)):
         pi = p[i] #the weight of the ith element in p trace
@@ -70,12 +78,12 @@ def ACT(p, q, C, k): #for now C is new every trace comparison, ADD LATER old use
     return t
 
 def calc_ict(model_embedding: Dict[Tuple, int], real_embedding: Dict[Tuple, int], k: int)  -> float:
-    """calculates the dissimilarity between two embeddings.
+    """calculates ICT between two embeddings.
 
     :param model_embedding: the embedding of the model trace
     :param real_embedding: the embedding of the real trace
-    :return: a floating-point value in [0, 1] where 1 isl
-    the maximum dissimilarity
+    :param k: number of edges considered per activity
+    :return: a floating-point value
     """
 
     whole_embedding = set(list(model_embedding.keys()) + list(real_embedding.keys()))
