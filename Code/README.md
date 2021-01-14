@@ -75,6 +75,17 @@ There are several problems with this code, which will be pointed out by the test
 To solve formatting issues, one can simply run `black path/to/file`.
 If you want to see a diff first, add `--diff`.
 
+### Writing Tests checking for Exceptions
+To expect an exception inside a test case (e.g. to test the input validation of a function), one can use [`pytest.raises`](https://docs.pytest.org/en/stable/reference.html#pytest-raises).
+Example:
+
+```python
+import pytest
+
+def test_exception():
+    with pytest.raises(ValueError, match=r"must be \d+$"):
+        raise ValueError("value must be 42")
+```
 
 ## Dependency Management
 Our dependencies are listed in `conda-env.yml` and `tox.ini`.
