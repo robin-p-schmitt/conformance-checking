@@ -21,7 +21,7 @@ def calc_wmd(model_embedding: Dict[Tuple, int], real_embedding: Dict[Tuple, int]
         d = np.zeros(vocab_len, dtype=np.double)
         # calculate the length of trace
         trace_len = 0
-        for _, value in embeddings:
+        for value in embeddings.values():
             trace_len += value
             
         for i, embedding in enumerate(whole_embedding):
@@ -86,7 +86,7 @@ def calc_ict(model_embedding: Dict[Tuple, int], real_embedding: Dict[Tuple, int]
         d = np.zeros(vocab_len, dtype=np.double)
         # calculate the length of trace
         trace_len = 0
-        for _, value in embeddings:
+        for value in embeddings.values():
             trace_len += value
             
         for i, embedding in enumerate(whole_embedding):
