@@ -41,32 +41,10 @@ def vectorize_trace(trace, vocab):
 
 	return vectorized_trace
 
-
-# assuming that traces are strings in form of e.g. "abcddedegf", each alphabet representing an activity
-# and that log is a collection of such traces
 def generate_act2vec_training_data(log, vocab, window_size, num_ns):
+
 	targets, contexts, labels = [], [], []
-
-	# # extract all the activities (without duplicates) from traces, and save them in activies
-	# activities = list()
-	# for trace in log:
-	# 	for activity in trace:  # iterate through activities in trace
-	# 		if activity not in activities:
-	# 			activities.append(activity)
-
-	# # indexing activities
-	# vocab, index = {}, 0  # start indexing form 1
-	# #vocab['<pad>'] = 0  # add a padding activity
-	# for activity in activities:
-	# 	if activity not in vocab:
-	# 		vocab[activity] = index
-	# 		index += 1
-
 	vocab_size = len(vocab)
-
-	# create inverse vocabulary to save mapping from integer indicies
-	# may not need it
-	# inverse_vocab = {index: activity for activity, index in vocab.items()}
 
 	for trace in tqdm.tqdm(log):
 		# vectorize trace
@@ -124,64 +102,6 @@ def get_context(trace, index, window_size):
 	context.remove(trace[index])
 
 	return context
-
-
-'''
-traces = ["abcdefghij"] * 512
-
-log = xes_importer.apply('logs/BPI_Challenge_2012.xes')
-traces = [[event["concept:name"] for event in trace] for trace in log][:2000]
-
-act_vocab = generate_activity_vocab(traces)
-trace_vocab = generate_trace_vocab(traces, act_vocab)
-print(act_vocab)
-print(len(trace_vocab))
-num_ns = 4
-window_size = 3
-
-targets, contexts, labels = generate_trace2vec_training_data(traces, act_vocab, trace_vocab, window_size)
-
-print(targets[0])
-print(contexts[0])
-print(labels[0])
-print(len(targets))
-
-BATCH_SIZE = 1024
-BUFFER_SIZE = 10000
-dataset = tf.data.Dataset.from_tensor_slices(((targets, contexts), labels))
-dataset = dataset.shuffle(BUFFER_SIZE).batch(BATCH_SIZE, drop_remainder=False)
-
-print(dataset)
-
-embedding_dim = 128
-trace2vec = Trace2Vec(len(trace_vocab), len(act_vocab), embedding_dim, window_size * 2)
-trace2vec.compile(optimizer='adam',
-              loss=tf.keras.losses.CategoricalCrossentropy(from_logits=False),
-              metrics=['accuracy'])
-
-trace2vec.fit(dataset, epochs=10)
-----------------------------------------------------------------------
-
-#targets, contexts, labels = generate_act2vec_training_data(traces, act_vocab, window_size, num_ns)
-
-
-# BATCH_SIZE = 1024
-# BUFFER_SIZE = 10000
-# dataset = tf.data.Dataset.from_tensor_slices(((targets, contexts), labels))
-# dataset = dataset.shuffle(BUFFER_SIZE).batch(BATCH_SIZE, drop_remainder=False)
-
-# print(dataset)
-
-# embedding_dim = 128
-# vocab_size = len(vocab)
-# act2vec = Act2Vec(vocab_size, embedding_dim, num_ns)
-# act2vec.compile(optimizer='adam',
-#               loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
-#               metrics=['accuracy'])
-
-#act2vec.fit(dataset, epochs=50)
-
-'''
 
 
 
