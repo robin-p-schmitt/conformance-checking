@@ -52,7 +52,7 @@ class Embedding_generator:
         return trace2vec.get_trace_embedding()
 
     '''
-    
+
     '''
     def get_activity_embedding(self):
         return self.activity_embedding
