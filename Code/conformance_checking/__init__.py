@@ -5,43 +5,53 @@ import numpy as np
 import pandas as pd
 import pm4py
 
+
 class ImportData:
-    """ This class is used to import event logs and process models and provides a method
+    """This class is used to import event logs and process models and provides a method
     for generating a playout of a petry-net.
     """
-    def import_xes(path_to_log_file):
+
+    def import_xes(self, path_to_log_file):
         """Import an event log, starting and ending activities from a .xes file.
         :param path_to_log_file: a path to the log file to be imported
-        :return: a list whos indicies correspont to event_log, start_activities, end_activities respectively 
+        :return: a list whos indicies correspont to
+        event_log, start_activities, end_activities respectively
         """
-        event_log = pm4py.read_xes(file_path)
+        event_log = pm4py.read_xes(path_to_log_file)
         start_activities = pm4py.get_start_activities(event_log)
         end_activities = pm4py.get_end_activities(event_log)
 
         return [event_log, start_activities, end_activities]
 
-    def import_csv(file_path):
+    def import_csv(self, path_to_log_file):
         """Import an event log, starting and ending activities from a .csv file.
         :param path_to_log_file: a path to the log file to be imported
-        :return: a list, whose indicies correspont to event_log, start_activities, end_activities respectively
+        :return: a list, whose indicies correspont to
+        event_log, start_activities, end_activities respectively
         """
-        event_log = pd.read_csv(file_path, sep=';')
-        event_log = pm4py.format_dataframe(event_log, case_id='case_id', activity_key='activity', timestamp_key='timestamp')
+        event_log = pd.read_csv(path_to_log_file, sep=";")
+        event_log = pm4py.format_dataframe(
+            event_log,
+            case_id="case_id",
+            activity_key="activity",
+            timestamp_key="timestamp",
+        )
         start_activities = pm4py.get_start_activities(event_log)
         end_activities = pm4py.get_end_activities(event_log)
 
         return [event_log, start_activities, end_activities]
 
-    def import_petry_net(file_path):
+    def import_petry_net(self, path_to_modell_file):
         """Import a petri net from a .pnml file.
-        :param path_to_log_file: a path to the petri net file to be imported
-        :return: a list whose indicies correspond to net, initial_marking, final_marking respectively.
+        :param path_to_modell_file: a path to the petri net file to be imported
+        :return: a list whose indicies correspond to net, initial_marking, final_marking
+         respectively.
         """
-        net, initial_marking, final_marking = pm4py.read_petri_net(file_path)
-        
+        net, initial_marking, final_marking = pm4py.read_petri_net(path_to_modell_file)
+
         return [net, initial_marking, final_marking]
 
-    def generate_playout(net,initial_marking,final_marking):
+    def generate_playout(self, net, initial_marking, final_marking):
         """Generate a playout given a petri net, initial_marking and final_marking
         :param net: a petri net
         :param initial_marking: the initial marking of the petri net
@@ -49,9 +59,12 @@ class ImportData:
         :return: a playout log of the petri net
         """
 
-        playout_log = pm4py.simulation.playout.simulator.apply(net,initial_marking,final_marking=final_marking)
-        
+        playout_log = pm4py.simulation.playout.simulator.apply(
+            net, initial_marking, final_marking=final_marking
+        )
+
         return playout_log
+
 
 class DissimilarityMatrix:
     """The result returned by EmbeddingConformance.execute().
