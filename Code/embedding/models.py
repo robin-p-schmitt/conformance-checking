@@ -1,16 +1,12 @@
-from tensorflow.keras import Model, Sequential
+from tensorflow.keras import Model
 from tensorflow.keras.layers import (
-    Activation,
     Dense,
     Dot,
     Embedding,
     Flatten,
-    GlobalAveragePooling1D,
-    Reshape,
     Average,
     Concatenate,
 )
-import numpy as np
 
 
 class Act2Vec(Model):

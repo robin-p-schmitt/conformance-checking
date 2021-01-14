@@ -2,24 +2,10 @@ import numpy as np
 import tensorflow as tf
 import tqdm
 
-from tensorflow.keras import Model, Sequential
-from tensorflow.keras.layers import (
-    Activation,
-    Dense,
-    Dot,
-    Embedding,
-    Flatten,
-    GlobalAveragePooling1D,
-    Reshape,
-)
-
-from models import Act2Vec, Trace2Vec
-
-from pm4py.objects.log.importer.xes import importer as xes_importer
-
 
 def generate_activity_vocab(log):
-    # extract all the activities (without duplicates) from traces, and save them in activies
+    # extract all the activities (without duplicates) from traces,
+    # and save them in activies
     vocab, index = {}, 1  # start indexing form 1
     vocab["<pad>"] = 0
     for trace in log:

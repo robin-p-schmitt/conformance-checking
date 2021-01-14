@@ -1,14 +1,19 @@
-from generate_training_data import *
-from models import *
+from models import Act2Vec, Trace2Vec
+from generate_training_data import (
+    generate_activity_vocab,
+    generate_trace_vocab,
+    generate_act2vec_training_data,
+    generate_trace2vec_training_data,
+)
 
-import numpy as np
+from pm4py.objects.log.importer.xes import importer as xes_importer
 import tensorflow as tf
-import tqdm
 
 """
 This class is used to generate embeddings.
-When this class is initiaized, training for calculating embeddings starts directly.
-To get embeddings, please use get_trace_embedding() or get_activity_embedding() to get correspoding embedding
+When this class is initialized, training for calculating embeddings starts directly.
+To get embeddings, please use get_trace_embedding() or get_activity_embedding() to get
+corresponding embedding.
 """
 
 
@@ -61,8 +66,10 @@ class Embedding_generator:
 
     """
     this function trains an act2vec model and returns an embedding of activities
-    @param  targets, contexts, labels: these are results of generating training data from an event log
-            vocab: activity vocabulary, an uniquely indexed collection of activities from an event log, which was used to generate training data
+    @param  targets, contexts, labels: these are results of generating training data
+            from an event log
+            vocab: activity vocabulary, an uniquely indexed collection of activities
+            from an event log, which was used to generate training data
             num_ns: number of desired negative samples for one positive skip-gram
             batch_size, buffer_size, embedding_dim : set as default
     """
@@ -96,9 +103,12 @@ class Embedding_generator:
 
     """
     this function trains an trace2vec model and returns an embedding of traces
-    @param  targets, contexts, labels: these are results of generating training data from an event log
-            act_vocab: activity vocabulary, an uniquely indexed collection of activities from an event log, which was used to generate training data
-            trace_vocab: trace vocabulary, an uniquely indexed collection of traces from an event log, which was used to generate training data
+    @param  targets, contexts, labels: these are results of generating training data
+            from an event log
+            act_vocab: activity vocabulary, an uniquely indexed collection of
+            activities from an event log, which was used to generate training data
+            trace_vocab: trace vocabulary, an uniquely indexed collection of traces
+            from an event log, which was used to generate training data
             window_size: window size needed for computing context size
             batch_size, buffer_size, embedding_dim : set as default
     """
