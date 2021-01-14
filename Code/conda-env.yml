@@ -9,6 +9,7 @@ dependencies:
   - pytest~=6.2.1
   - pytest-cov~=2.10.1
   - flake8~=3.8.4
+  - pyemd~=0.5.1
   - pip:
     - pm4py~=2.1.2
     - pytest-randomly~=3.5.0
