@@ -1,5 +1,5 @@
-from models import Act2Vec, Trace2Vec
-from generate_training_data import (
+from conformance_checking.embedding.models import Act2Vec, Trace2Vec
+from conformance_checking.embedding.generate_training_data import (
     generate_activity_vocab,
     generate_trace_vocab,
     generate_act2vec_training_data,

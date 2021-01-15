@@ -1,9 +1,9 @@
-from embedding_generator import Embedding_generator
+from conformance_checking.embedding.embedding_generator import Embedding_generator
 from pm4py.objects.log.importer.xes import importer as xes_importer
 
 if __name__ == "__main__":
     # load a log with pm4py
-    log = xes_importer.apply("logs/BPI_Challenge_2012.xes")
+    log = xes_importer.apply("data/BPI_Challenge_2012.xes")
     # only keep the first 2000 traces, so it is faster.
     # If you want to test on the whole log, just remove the [:2000]
     log = [[event["concept:name"] for event in trace] for trace in log][:2000]
