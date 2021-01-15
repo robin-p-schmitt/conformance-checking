@@ -16,6 +16,7 @@ def generate_activity_vocab(log):
 
     return vocab
 
+
 # given a log, assign every trace a unique index
 def generate_trace_vocab(log, act_vocab):
     vocab, index = {}, 0
@@ -29,9 +30,11 @@ def generate_trace_vocab(log, act_vocab):
 
     return vocab
 
+
 # transform trace into a string of activity indices to use in dicts
 def hash_trace(trace, act_vocab):
     return ".".join([str(index) for index in vectorize_trace(trace, act_vocab)])
+
 
 # given a trace of activities, return a trace of indices
 def vectorize_trace(trace, vocab):
