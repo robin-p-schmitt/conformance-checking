@@ -9,6 +9,8 @@ dependencies:
   - pytest~=6.2.1
   - pytest-cov~=2.10.1
   - flake8~=3.8.4
+  - tensorflow~=2.3.0
+  - tqdm~=4.55.1
   - pyemd~=0.5.1
   - pip:
     - pm4py~=2.1.2
