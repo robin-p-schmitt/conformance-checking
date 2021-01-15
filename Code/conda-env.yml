@@ -15,3 +15,4 @@ dependencies:
     - pytest-randomly~=3.5.0
     - tox-conda~=0.5.0
     - black~=20.8b1
+    - pm4py~=2.1.2

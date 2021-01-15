@@ -2,6 +2,66 @@ from abc import ABC, abstractmethod
 from typing import List, Tuple, Any
 
 import numpy as np
+import pandas as pd
+import pm4py
+
+
+def import_xes(path_to_log_file):
+    """Import an event log from a .xes file and return a List[List[str]],
+    where the entry i,j is the j-th activity name of the i-th trace.
+    :param path_to_log_file: a path to the log file to be imported
+    :return: List[List[str]],where the entry i,j is the
+    j-th activity name of the i-th trace.
+    """
+    event_log = pm4py.read_xes(path_to_log_file)
+
+    return [[event["concept:name"] for event in trace] for trace in event_log]
+
+
+def import_csv(path_to_log_file):
+    """Import an event log from a .csv file  and return a List[List[str]],
+    where the entry i,j is the j-th activity name of the i-th trace.
+    :param path_to_log_file: a path to the log file to be imported
+    :return: List[List[str]],where the entry i,j is the
+    j-th activity name of the i-th trace.
+    """
+    event_log = pd.read_csv(path_to_log_file, sep=";")
+    event_log = pm4py.format_dataframe(
+        event_log,
+        case_id="case_id",
+        activity_key="activity",
+        timestamp_key="timestamp",
+    )
+
+    return [[event["concept:name"] for event in trace] for trace in event_log]
+
+
+def import_petri_net(path_to_model_file):
+    """Import a petri net from a .pnml file.
+    :param path_to_model_file: a path to the petri net file to be imported
+    :return: a petri net, an initial marking and a final marking
+    """
+    net, initial_marking, final_marking = pm4py.read_petri_net(path_to_model_file)
+
+    return net, initial_marking, final_marking
+
+
+def generate_playout(net, initial_marking, final_marking):
+    """Generate a playout given a petri net, initial_marking and final_marking
+    and return a List[List[str]], where the entry i,j is the j-th activity
+    name of the i-th trace.
+    :param net: a petri net
+    :param initial_marking: the initial marking of the petri net
+    :param final_marking: the final marking of a petri net
+    :return: a List[List[str]], where the entry i,j is the j-th activity name
+    of the i-th trace.
+    """
+
+    playout_log = pm4py.simulation.playout.simulator.apply(
+        net, initial_marking, final_marking=final_marking
+    )
+
+    return [[event["concept:name"] for event in trace] for trace in playout_log]
 
 
 class DissimilarityMatrix:
