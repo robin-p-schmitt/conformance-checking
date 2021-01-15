@@ -6,7 +6,6 @@ from generate_training_data import (
     generate_trace2vec_training_data,
 )
 
-from pm4py.objects.log.importer.xes import importer as xes_importer
 import tensorflow as tf
 
 """
