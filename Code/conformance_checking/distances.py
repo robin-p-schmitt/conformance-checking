@@ -9,7 +9,11 @@ def calc_wmd(
     """calculates WMD between two embeddings.
 
     :param model_embedding: the embedding of the model trace
+            Dict[Tuple, int]: Tuple is the embedding of an activity,
+                    int is count of this activity within a trace
     :param real_embedding: the embedding of the real trace
+            Dict[Tuple, int]: Tuple is the embedding of an activity,
+                    int is count of this activity within a trace
     :return: a floating-point value
     """
 
@@ -91,7 +95,11 @@ def calc_ict(
     """calculates ICT between two embeddings.
 
     :param model_embedding: the embedding of the model trace
+            Dict[Tuple, int]: Tuple is the embedding of an activity,
+                    int is count of this activity within a trace
     :param real_embedding: the embedding of the real trace
+            Dict[Tuple, int]: Tuple is the embedding of an activity,
+                    int is count of this activity within a trace
     :param k: number of edges considered per activity
     :return: a floating-point value
     """
