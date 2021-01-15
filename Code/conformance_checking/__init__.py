@@ -18,24 +18,6 @@ def import_xes(path_to_log_file):
     return [[event["concept:name"] for event in trace] for trace in event_log]
 
 
-def import_csv(path_to_log_file):
-    """Import an event log from a .csv file  and return a List[List[str]],
-    where the entry i,j is the j-th activity name of the i-th trace.
-    :param path_to_log_file: a path to the log file to be imported
-    :return: List[List[str]],where the entry i,j is the
-    j-th activity name of the i-th trace.
-    """
-    event_log = pd.read_csv(path_to_log_file, sep=";")
-    event_log = pm4py.format_dataframe(
-        event_log,
-        case_id="case_id",
-        activity_key="activity",
-        timestamp_key="timestamp",
-    )
-
-    return [[event["concept:name"] for event in trace] for trace in event_log]
-
-
 def import_petri_net(path_to_model_file):
     """Import a petri net from a .pnml file.
     :param path_to_model_file: a path to the petri net file to be imported
