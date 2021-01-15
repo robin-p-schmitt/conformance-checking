@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from typing import List, Tuple, Any
 
 import numpy as np
-import pandas as pd
 import pm4py
 
 
