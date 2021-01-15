@@ -15,7 +15,7 @@ test:
 coverage:
   script:
     - cd ..
-    - pytest --cov --cov-report=xml
+    - pytest --doctest-modules --cov=. --cov-report=xml
   artifacts:
     reports:
       cobertura: coverage.xml
