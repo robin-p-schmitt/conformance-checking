@@ -131,7 +131,8 @@ def get_context(trace, index, window_size):
     # get the right index boundary
     right = min(len(trace) - 1, index + window_size)
     # get the amount of padding tokens for the left and right side
-    # for example, the first token in a trace will need window_size padding tokens on the left
+    # for example, the first token in a trace will 
+    # need window_size padding tokens on the left
     # because it has no left neighbors
     left_num_padding = window_size - (index - left)
     right_num_padding = window_size - (right - index)
