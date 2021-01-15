@@ -95,7 +95,7 @@ To re-create the development environment, execute the following steps in the `Co
 
 ```bash
 conda activate
-conda env remove conformance-checking
+conda env remove -n conformance-checking
 conda env create -f conda-env.yml
 conda activate conformance-checking
 tox -r
