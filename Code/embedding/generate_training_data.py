@@ -17,10 +17,13 @@ def generate_activity_vocab(log):
     return vocab
 
 
+# given a log, assign every trace a unique index
 def generate_trace_vocab(log, act_vocab):
     vocab, index = {}, 0
     for trace in log:
+        # get trace as string
         trace_hash = hash_trace(trace, act_vocab)
+        # add new traces to the dict
         if trace_hash not in vocab:
             vocab[trace_hash] = index
             index += 1
@@ -28,10 +31,12 @@ def generate_trace_vocab(log, act_vocab):
     return vocab
 
 
+# transform trace into a string of activity indices to use in dicts
 def hash_trace(trace, act_vocab):
     return ".".join([str(index) for index in vectorize_trace(trace, act_vocab)])
 
 
+# given a trace of activities, return a trace of indices
 def vectorize_trace(trace, vocab):
     vectorized_trace = []
     for activity in trace:
@@ -59,9 +64,11 @@ def generate_act2vec_training_data(log, vocab, window_size, num_ns):
 
         # create negative sampling for each positive skip-gram pair
         for target_activity, context_activity in positive_skip_grams:
+            # the positive sample
             context_class = tf.expand_dims(
                 tf.constant([context_activity], dtype="int64"), 1
             )
+            # create negative samples
             negative_sampling_candidates, _, _ = tf.random.uniform_candidate_sampler(
                 true_classes=context_class,
                 num_true=1,
@@ -71,12 +78,14 @@ def generate_act2vec_training_data(log, vocab, window_size, num_ns):
                 name="negative_sampling",
             )
 
-            # Build context and label vectors (for one target word)
+            # transform negative samples to concatenate with the positive sample
             negative_sampling_candidates = tf.expand_dims(
                 negative_sampling_candidates, 1
             )
 
+            # context consists of positive and negative samples
             context = tf.concat([context_class, negative_sampling_candidates], 0)
+            # positive sample is labelled 1, negative samples are labelled 0
             label = tf.constant([1] + [0] * num_ns, dtype="int64")
 
             targets.append(target_activity)
@@ -89,33 +98,48 @@ def generate_act2vec_training_data(log, vocab, window_size, num_ns):
 def generate_trace2vec_training_data(log, vocab_act, vocab_trace, window_size):
     traces, contexts, labels = [], [], []
 
+    # number of distinct activities
     act_vocab_size = len(vocab_act)
 
     for trace in tqdm.tqdm(log):
+        # get trace as a list of activity indices
         vectorized_trace = vectorize_trace(trace, vocab_act)
 
+        # for every activity in the trace, create a training sample
         for i, activity in enumerate(vectorized_trace):
 
+            # label is the one-hot-encoded target word
             label = np.zeros(act_vocab_size)
             label[activity] = 1
 
+            # get the unique index of the trace
             trace_index = vocab_trace[hash_trace(trace, vocab_act)]
 
+            # get the surrounding words of the target word
+            context = get_context(vectorized_trace, i, window_size)
+
             traces.append(trace_index)
-            contexts.append(get_context(vectorized_trace, i, window_size))
+            contexts.append(context)
             labels.append(label)
 
     return traces, contexts, labels
 
 
 def get_context(trace, index, window_size):
+    # get the left index boundary
     left = max(0, index - window_size)
+    # get the right index boundary
     right = min(len(trace) - 1, index + window_size)
+    # get the amount of padding tokens for the left and right side
+    # for example, the first token in a trace will
+    # need window_size padding tokens on the left
+    # because it has no left neighbors
     left_num_padding = window_size - (index - left)
     right_num_padding = window_size - (right - index)
-    num_padding = left_num_padding + right_num_padding
 
-    context = trace[left : right + 1] + [0] * num_padding
+    # get the surrounding words of the target word at index
+    context = [0] * left_num_padding + trace[left : right + 1] + [0] * right_num_padding
+    # remove the target word from the context
     context.remove(trace[index])
 
     return context

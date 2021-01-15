@@ -6,7 +6,6 @@ from generate_training_data import (
     generate_trace2vec_training_data,
 )
 
-from pm4py.objects.log.importer.xes import importer as xes_importer
 import tensorflow as tf
 
 """
@@ -20,10 +19,6 @@ corresponding embedding.
 class Embedding_generator:
     def __init__(self, log, trace2vec_windows_size=3, act2vec_windows_size=3, num_ns=4):
         # log is expected to be a data type of List[List[str]]
-
-        # this log is just for testing the functionality of the class
-        log = xes_importer.apply("logs/BPI_Challenge_2012.xes")
-        log = [[event["concept:name"] for event in trace] for trace in log][:2000]
 
         # create vocabulary for activities and traces
         self.act_vocab = generate_activity_vocab(log)
@@ -48,6 +43,7 @@ class Embedding_generator:
         )
 
         # generate embeddings
+        print("TRAIN ACT2VEC MODEL")
         self.activity_embedding = self.train_act2vec_model(
             self.act2vec_training_data["targets"],
             self.act2vec_training_data["contexts"],
@@ -55,6 +51,7 @@ class Embedding_generator:
             self.act_vocab,
             num_ns,
         )
+        print("TRAIN TRACE2VEC MODEL")
         self.trace_embedding = self.train_trace2vec_model(
             self.trace2vec_training_data["targets"],
             self.trace2vec_training_data["contexts"],
@@ -96,7 +93,7 @@ class Embedding_generator:
             metrics=["accuracy"],
         )
 
-        act2vec.fit(dataset, epochs=50)
+        act2vec.fit(dataset, epochs=10)
 
         # we need to return embedding!!
         return act2vec.get_target_embedding()
