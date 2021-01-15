@@ -2,6 +2,16 @@ from conformance_checking import EmbeddingConformance
 
 
 class Mock(EmbeddingConformance):
+    """A mock for the base algorithm.
+
+    The EmbeddingConformance class will be implemented by all the conformance
+    checking algorithms we will implement. Each algorithm has to implement the
+    two methods _calc_embeddings() and _calc_dissimilarity(). In this mock, we
+    take the length of a trace as its embedding. The dissimilarity is then the
+    relative difference in the length of a trace. This is a very basic implementation
+    for demonstration purposes.
+    """
+
     @staticmethod
     def _calc_embeddings(model_traces, real_traces):
         model_embeddings = [len(t) for t in model_traces]
