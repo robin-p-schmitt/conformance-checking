@@ -1,4 +1,4 @@
-from distances import calc_wmd, calc_ict
+from conformance_checking.distances import calc_wmd, calc_ict
 
 def main():
     # create some embeddings as example
