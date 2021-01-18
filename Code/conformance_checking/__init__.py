@@ -3,6 +3,7 @@ from typing import List, Tuple, Any
 
 import numpy as np
 import pm4py
+import pickle
 
 
 def import_xes(path_to_log_file):
@@ -57,6 +58,7 @@ class DissimilarityMatrix:
 
         :param dissimilarity_matrix: the NumPy dissimilarity matrix
         """
+
         self._dissimilarity_matrix = dissimilarity_matrix
 
     def get_dissimilarity_matrix(self) -> np.ndarray:
@@ -66,18 +68,26 @@ class DissimilarityMatrix:
         """
         return self._dissimilarity_matrix
 
-    def calc_fitness(self):
-        raise NotImplementedError
+    def calc_fitness(self) -> float:
+        fitness = np.average(self.get_dissimilarity_matrix().min(axis=0))
+        return fitness
 
-    def calc_precision(self):
-        raise NotImplementedError
+    def calc_precision(self) -> float:
+        precision = np.average(self.get_dissimilarity_matrix().min(axis=1))
+        return precision
 
     def save(self, path):
-        raise NotImplementedError
+        pickle_file = open(path, "wb")
+        pickle.dump(self.get_dissimilarity_matrix(), pickle_file)
+        pickle_file.close()
 
     @staticmethod
     def load(path):
-        raise NotImplementedError
+        pickle_file = open(path, "rb")
+        matrix = pickle.load(pickle_file)
+        pickle_file.close()
+        return matrix
+
 
 
 class EmbeddingConformance(ABC):
