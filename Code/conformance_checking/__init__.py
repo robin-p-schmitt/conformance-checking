@@ -98,17 +98,39 @@ class EmbeddingConformance(ABC):
         :return: The dissimilarity matrix.
         """
 
+        def deduplicate(traces):
+            known = {}
+            deduplicated = []
+            mapping = []
+            for i, trace in enumerate(traces):
+                trace_tuple = tuple(trace)
+                if trace_tuple in known:
+                    di = known[trace_tuple]
+                else:
+                    di = len(deduplicated)
+                    deduplicated.append(trace)
+                    known[trace_tuple] = di
+                    mapping.append([])
+                mapping[di].append(i)
+            return deduplicated, mapping
+
+        model_deduplicated, model_mappings = deduplicate(model_traces)
+        real_deduplicated, real_mappings = deduplicate(real_traces)
+
         model_embeddings, real_embeddings, context = self._calc_embeddings(
-            model_traces, real_traces
+            model_deduplicated, real_deduplicated
         )
         dissimilarity_matrix = np.zeros(
             (len(model_traces), len(real_traces)), dtype=np.float32
         )
-        for i, model_embedding in enumerate(model_embeddings):
-            for j, real_embedding in enumerate(real_embeddings):
-                dissimilarity_matrix[i, j] = self._calc_dissimilarity(
+        for model_embedding, model_map in zip(model_embeddings, model_mappings):
+            for real_embedding, real_map in zip(real_embeddings, real_mappings):
+                dissimilarity = self._calc_dissimilarity(
                     model_embedding, real_embedding, context
                 )
+                for i in model_map:
+                    for j in real_map:
+                        dissimilarity_matrix[i, j] = dissimilarity
         return DissimilarityMatrix(dissimilarity_matrix)
 
     @staticmethod

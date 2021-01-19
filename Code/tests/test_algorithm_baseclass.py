@@ -26,6 +26,7 @@ def example():
 
     model_traces = [
         ["hi", "foo"],
+        ["hi", "foo"],
         ["bar"],
         [],
         ["a", "long", "trace", "with", "doubled", "words", "like", "long"],
@@ -33,11 +34,18 @@ def example():
     real_traces = [
         ["foobar", "hi"],
         ["bar"],
+        ["bar"],
         [],
         ["a", "long", "long", "trace", "but", "not", "the", "same"],
     ]
     expected_matrix = np.asarray(
-        [[0, 0.5, 1, 0.75], [0.5, 0, 1, 0.875], [1, 1, 0, 1], [0.75, 0.875, 1, 0]],
+        [
+            [0, 0.5, 0.5, 1, 0.75],
+            [0, 0.5, 0.5, 1, 0.75],
+            [0.5, 0, 0, 1, 0.875],
+            [1, 1, 1, 0, 1],
+            [0.75, 0.875, 0.875, 1, 0],
+        ],
         dtype=np.float32,
     )
     return Mock, model_traces, real_traces, expected_matrix
