@@ -3,7 +3,6 @@ from typing import List, Tuple, Any
 
 import numpy as np
 import pm4py
-import pickle
 
 
 def import_xes(path_to_log_file):
@@ -77,16 +76,11 @@ class DissimilarityMatrix:
         return precision
 
     def save(self, path):
-        pickle_file = open(path, "wb")
-        pickle.dump(self.get_dissimilarity_matrix(), pickle_file)
-        pickle_file.close()
+        np.save(path, self.get_dissimilarity_matrix())
 
-    @staticmethod
-    def load(path):
-        pickle_file = open(path, "rb")
-        matrix = pickle.load(pickle_file)
-        pickle_file.close()
-        return matrix
+    def load(self, path):
+        np.load(path)
+        return self.get_dissimilarity_matrix()
 
 
 
