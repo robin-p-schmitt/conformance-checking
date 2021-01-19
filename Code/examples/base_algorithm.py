@@ -1,4 +1,5 @@
 from conformance_checking import EmbeddingConformance
+import numpy as np
 
 
 class Mock(EmbeddingConformance):
@@ -30,26 +31,32 @@ class Mock(EmbeddingConformance):
 
 def main():
     model_traces = [
-        ["hi", "foo"],
-        ["bar"],
-        [],
-        ["a", "long", "trace", "with", "doubled", "words", "like", "long"],
+        ["King", "brave", "man"],
+        ["a", " b", "as", "as"],
+        ["b"]
     ]
     real_traces = [
-        ["foobar", "hi"],
-        ["bar"],
-        [],
-        ["a", "long", "long", "trace", "but", "not", "the", "same"],
+        ["Queen", "pretty", "woman", "hallo", "as"],
+        ["a", "b", "c", "d"],
+        ["d", "as"]
     ]
     print("Model traces: %s" % str(model_traces))
     print("Real traces: %s" % str(real_traces))
     print("Executing mocked algorithm...")
     dissimilarity_matrix = Mock().execute(model_traces, real_traces)
+
     print(
         "Dissimilarity matrix (entry at row i and column j is the distance of model "
         "trace i and real trace j):"
     )
     print(dissimilarity_matrix.get_dissimilarity_matrix())
+    print(dissimilarity_matrix.calc_fitness())
+    print(dissimilarity_matrix.calc_precision())
+    dissimilarity_matrix.save("matrix2.npy")
+    b = dissimilarity_matrix.load("matrix2.npy")
+    print(b)
+
+
 
 
 if __name__ == "__main__":
