@@ -98,7 +98,7 @@ class EmbeddingConformance(ABC):
         :return: The dissimilarity matrix.
         """
 
-        model_embeddings, real_embeddings = self._calc_embeddings(
+        model_embeddings, real_embeddings, context = self._calc_embeddings(
             model_traces, real_traces
         )
         dissimilarity_matrix = np.zeros(
@@ -107,7 +107,7 @@ class EmbeddingConformance(ABC):
         for i, model_embedding in enumerate(model_embeddings):
             for j, real_embedding in enumerate(real_embeddings):
                 dissimilarity_matrix[i, j] = self._calc_dissimilarity(
-                    model_embedding, real_embedding
+                    model_embedding, real_embedding, context
                 )
         return DissimilarityMatrix(dissimilarity_matrix)
 
@@ -115,22 +115,26 @@ class EmbeddingConformance(ABC):
     @abstractmethod
     def _calc_embeddings(
         model_traces: List[List[str]], real_traces: List[List[str]]
-    ) -> Tuple[List[Any], List[Any]]:
+    ) -> Tuple[List[Any], List[Any], Any]:
         """Calculates the embeddings of the traces.
 
         :param model_traces: The traces coming from the model.
         :param real_traces: The traces coming from the real log.
-        :return: The embeddings of the traces of the model and real log.
+        :return: The embeddings of the traces of the model and real log
+        and an implementation-specific context object.
         """
         pass  # pragma: no cover
 
     @staticmethod
     @abstractmethod
-    def _calc_dissimilarity(model_embedding: Any, real_embedding: Any) -> float:
+    def _calc_dissimilarity(
+        model_embedding: Any, real_embedding: Any, context: Any
+    ) -> float:
         """Calculates the dissimilarity between two embeddings.
 
         :param model_embedding: the embedding of the model trace
         :param real_embedding: the embedding of the real trace
+        :param context: the context object (implementation specific)
         :return: a floating-point value in [0, 1] where 1 is
         the maximum dissimilarity
         """
