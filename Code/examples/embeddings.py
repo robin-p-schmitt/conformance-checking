@@ -30,15 +30,11 @@ if __name__ == "__main__":
 
     print(
         "\nThe frequency of activity with index 10 in the",
-        "first trace from model_log: {}\n".format(
-            model_freq[0][10]
-        )
+        "first trace from model_log: {}\n".format(model_freq[0][10]),
     )
     print(
-        "A list of dictionaries containing the counts of", 
-        "activities in traces from the real log: \n{}\n".format(
-            real_freq
-        )
+        "A list of dictionaries containing the counts of",
+        "activities in traces from the real log: \n{}\n".format(real_freq),
     )
     print("The embedding of the activity with index 0: \n{}\n".format(embeddings[0]))
 
