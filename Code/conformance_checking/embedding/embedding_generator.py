@@ -5,7 +5,7 @@ from conformance_checking.embedding.generate_training_data import (
     generate_act2vec_training_data,
     generate_trace2vec_training_data,
     vectorize_trace,
-    hash_trace
+    hash_trace,
 )
 
 import tensorflow as tf
@@ -146,8 +146,12 @@ class Embedding_generator:
     """
 
     def get_activity_embedding(self, model_log, real_log):
-        model_log_indices = [vectorize_trace(trace, self.act_vocab) for trace in model_log]
-        real_log_indices = [vectorize_trace(trace, self.act_vocab) for trace in real_log]
+        model_log_indices = [
+            vectorize_trace(trace, self.act_vocab) for trace in model_log
+        ]
+        real_log_indices = [
+            vectorize_trace(trace, self.act_vocab) for trace in real_log
+        ]
 
         model_frequency = []
         for trace in model_log_indices:
@@ -165,14 +169,17 @@ class Embedding_generator:
 
         return model_frequency, real_frequency, self.activity_embedding
 
-
     """
     this function returns an embedding matrix of traces
     """
 
     def get_trace_embedding(self, model_log, real_log):
-        model_indices = [self.trace_vocab[hash_trace(trace, self.act_vocab)] for trace in model_log]
-        real_indices = [self.trace_vocab[hash_trace(trace, self.act_vocab)] for trace in real_log]
+        model_indices = [
+            self.trace_vocab[hash_trace(trace, self.act_vocab)] for trace in model_log
+        ]
+        real_indices = [
+            self.trace_vocab[hash_trace(trace, self.act_vocab)] for trace in real_log
+        ]
 
         model_emb = self.trace_embedding[model_indices]
         real_emb = self.trace_embedding[real_indices]

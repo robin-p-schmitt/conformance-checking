@@ -21,14 +21,29 @@ if __name__ == "__main__":
     model_log = log[:3]
     real_log = log[3:8]
 
-    # get frequency tables for the model log and the real log and an embedding lookup table
-    model_freq, real_freq, embeddings = emb_gen.get_activity_embedding(model_log, real_log)
+    # get frequency tables for the model log and the real log
+    # and an embedding lookup table
+    model_freq, real_freq, embeddings = emb_gen.get_activity_embedding(
+        model_log, real_log
+    )
 
-    print("\nThe frequency of activity with index 10 in the first trace from model_log: {}\n".format(model_freq[0][10]))
-    print("A list of dictionaries containing the counts of activities in traces from the real log: \n{}\n".format(real_freq))
+    print(
+        "\nThe frequency of activity with index 10 in the \
+        first trace from model_log: {}\n".format(
+            model_freq[0][10]
+        )
+    )
+    print(
+        "A list of dictionaries containing the counts of \
+        activities in traces from the real log: \n{}\n".format(
+            real_freq
+        )
+    )
     print("The embedding of the activity with index 0: \n{}\n".format(embeddings[0]))
 
     # get the trace embeddings of traces in the model log and real log
     model_emb, real_emb = emb_gen.get_trace_embedding(model_log, real_log)
 
-    print("The embedding of the first trace in the model log: \n{}".format(model_emb[0]))
+    print(
+        "The embedding of the first trace in the model log: \n{}".format(model_emb[0])
+    )
