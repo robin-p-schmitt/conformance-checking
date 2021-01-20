@@ -15,8 +15,10 @@ if __name__ == "__main__":
     #                        side to predict target word
     # act2vec_window_size: number of positive samples for every activity
     # num_ns: number of negative samples for every positive sample in act2vec
+    '''
     emb_gen = Embedding_generator(
-        log, trace2vec_windows_size=4, act2vec_windows_size=4, num_ns=4
+        log, trace2vec_windows_size=4, act2vec_windows_size=4, num_ns=4, activity_auto_train=False,
+        trace_auto_train=False
     )
 
     # create example model and real log
@@ -45,13 +47,13 @@ if __name__ == "__main__":
     print(
         "The embedding of the first trace in the model log: \n{}".format(model_emb[0])
     )
-
+    '''
     act_emb_gen = Activity_Embedding_generator(
         log, act2vec_windows_size=4, num_ns=4
     )
 
     trace_emb_gen = Trace_Embedding_generator(
-        log, trace2vec_windows_size=4
+        log, trace2vec_windows_size=4, auto_train=True
     )
 
     # create example model and real log
@@ -60,6 +62,7 @@ if __name__ == "__main__":
 
     # get frequency tables for the model log and the real log
     # and an embedding lookup table
+    act_emb_gen.start_training()
     model_freq, real_freq, embeddings = act_emb_gen.get_activity_embedding(
         model_log, real_log
     )

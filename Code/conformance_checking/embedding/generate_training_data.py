@@ -50,6 +50,7 @@ def generate_act2vec_training_data(log, vocab, window_size, num_ns):
     targets, contexts, labels = [], [], []
     vocab_size = len(vocab)
 
+    print('GENERATE ACT2VEC TRAINING DATA')
     for trace in tqdm.tqdm(log):
         # vectorize trace
         vectorized_trace = vectorize_trace(trace, vocab)
@@ -101,6 +102,7 @@ def generate_trace2vec_training_data(log, vocab_act, vocab_trace, window_size):
     # number of distinct activities
     act_vocab_size = len(vocab_act)
 
+    print('GENERATE TRACE2VEC TRAINING DATA')
     for trace in tqdm.tqdm(log):
         # get trace as a list of activity indices
         vectorized_trace = vectorize_trace(trace, vocab_act)
