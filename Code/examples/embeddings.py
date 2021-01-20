@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     # example code for generating activity and trace embeddings at the same time
     # this will raise error since start_training() function was not called
-    """
+
     # create instance of the embedding generator.
     # log: the log to train the embeddings on
     # trace2vec_window_size: number of context activities on each
@@ -22,9 +22,12 @@ if __name__ == "__main__":
     # act2vec_window_size: number of positive samples for every activity
     # num_ns: number of negative samples for every positive sample in act2vec
     emb_gen = Embedding_generator(
-        log, trace2vec_windows_size=4, act2vec_windows_size=4, num_ns=4,
+        log,
+        trace2vec_windows_size=4,
+        act2vec_windows_size=4,
+        num_ns=4,
         activity_auto_train=False,
-        trace_auto_train=False
+        trace_auto_train=False,
     )
 
     # create example model and real log
@@ -53,11 +56,11 @@ if __name__ == "__main__":
     print(
         "The embedding of the first trace in the model log: \n{}".format(model_emb[0])
     )
-    """
 
     """
     example for generating each activity and trace embeddings seperately
     """
+
     act_emb_gen = Activity_Embedding_generator(log, act2vec_windows_size=4, num_ns=4)
     # start training manually
     act_emb_gen.start_training()
