@@ -38,12 +38,14 @@ class Embedding_generator:
                                             log, trace2vec_windows_size, trace_auto_train
                                             )
 
+    # this function returns activity embedding
     def get_activity_embedding(self, model_log, real_log):
         return self.activity_embedding_generator.get_activity_embedding(model_log, real_log)
 
+    # this function returns trace embedding
     def get_trace_embedding(self, model_log, real_log):
         return self.trace_embedding_generator.get_trace_embedding(model_log, real_log)
-
+    # this function starts to train both activity and trace embedding models
     def start_training(self):
         self.activity_embedding_generator.start_training()
         self.trace_embedding_generator.start_training()
