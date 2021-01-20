@@ -6,7 +6,7 @@ if __name__ == "__main__":
     log = xes_importer.apply("data/BPI_Challenge_2012.xes")
     # only keep the first 2000 traces, so it is faster.
     # If you want to test on the whole log, just remove the [:2000]
-    log = [[event["concept:name"] for event in trace] for trace in log][:50]
+    log = [[event["concept:name"] for event in trace] for trace in log][:2000]
 
     # create instance of the embedding generator.
     # log: the log to train the embeddings on
@@ -18,6 +18,7 @@ if __name__ == "__main__":
         log, trace2vec_windows_size=4, act2vec_windows_size=4, num_ns=4
     )
 
+    # create example model and real log
     model_log = log[:3]
     real_log = log[3:8]
 
@@ -28,14 +29,14 @@ if __name__ == "__main__":
     )
 
     print(
-        "\nThe frequency of activity with index 10 in the \
-        first trace from model_log: {}\n".format(
+        "\nThe frequency of activity with index 10 in the",
+        "first trace from model_log: {}\n".format(
             model_freq[0][10]
         )
     )
     print(
-        "A list of dictionaries containing the counts of \
-        activities in traces from the real log: \n{}\n".format(
+        "A list of dictionaries containing the counts of", 
+        "activities in traces from the real log: \n{}\n".format(
             real_freq
         )
     )
