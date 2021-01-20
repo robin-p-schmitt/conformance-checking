@@ -17,11 +17,13 @@ This class is used to generate both activity and trace embeddings from an event 
             trace2vec_windows_size: window_size for trace2vec training
             act2vec_windows_size: window_size for act2vec training
             num_ns: number of negative samples for act2vec training
-            activity_auto_train: whether the training for activity embedding starts automatically when an instance of
-                                    this class is created
-            trace_auto_train: whether the training for trace embedding starts automatically when an instance of
-                                    this class is created
+            activity_auto_train: whether the training for activity embedding starts
+                            automatically when an instance of this class is created
+            trace_auto_train: whether the training for trace embedding starts
+                            automatically when an instance of this class is created
 """
+
+
 class Embedding_generator:
     def __init__(
         self,
@@ -30,34 +32,40 @@ class Embedding_generator:
         act2vec_windows_size=3,
         num_ns=4,
         activity_auto_train=False,
-        trace_auto_train=False):
+        trace_auto_train=False,
+    ):
         self.activity_embedding_generator = Activity_Embedding_generator(
-                                            log, act2vec_windows_size, num_ns, activity_auto_train
-                                            )
+            log, act2vec_windows_size, num_ns, activity_auto_train
+        )
         self.trace_embedding_generator = Trace_Embedding_generator(
-                                            log, trace2vec_windows_size, trace_auto_train
-                                            )
+            log, trace2vec_windows_size, trace_auto_train
+        )
 
     # this function returns activity embedding
     def get_activity_embedding(self, model_log, real_log):
-        return self.activity_embedding_generator.get_activity_embedding(model_log, real_log)
+        return self.activity_embedding_generator.get_activity_embedding(
+            model_log, real_log
+        )
 
     # this function returns trace embedding
     def get_trace_embedding(self, model_log, real_log):
         return self.trace_embedding_generator.get_trace_embedding(model_log, real_log)
+
     # this function starts to train both activity and trace embedding models
     def start_training(self):
         self.activity_embedding_generator.start_training()
         self.trace_embedding_generator.start_training()
 
-'''
+
+"""
 This class is used to generate only activity embeddings from an event log.
 @param      log: where the activities and traces for embedding generation come from
             act2vec_windows_size: window_size for act2vec training
             num_ns: number of negative samples for act2vec training
-            auto_train: whether the training for activity embedding starts automatically when an instance of
-                                    this class is created
-'''
+            auto_train: whether the training for activity embedding
+                        starts automatically when an instance of this class is created
+"""
+
 
 class Activity_Embedding_generator:
     def __init__(self, log, act2vec_windows_size=3, num_ns=4, auto_train=False):
@@ -75,10 +83,10 @@ class Activity_Embedding_generator:
             # flag that inidicates whether the model is already trained
             self.trained = False
 
-
-    '''
+    """
     this function starts to train the model
-    '''
+    """
+
     def start_training(self):
         # create vocabulary for activities
         self.act_vocab = generate_activity_vocab(self.log)
@@ -101,6 +109,7 @@ class Activity_Embedding_generator:
             self.act_vocab,
             self.num_ns,
         )
+
     """
     this function trains an act2vec model and returns an embedding of activities
     @param  targets, contexts, labels: these are results of generating training data
@@ -146,7 +155,9 @@ class Activity_Embedding_generator:
 
     def get_activity_embedding(self, model_log, real_log):
         if not self.trained:
-            raise ModelNotTrainedError('model for activity embeddings is not trained yet')
+            raise ModelNotTrainedError(
+                "model for activity embeddings is not trained yet"
+            )
         else:
             model_log_indices = [
                 vectorize_trace(trace, self.act_vocab) for trace in model_log
@@ -171,13 +182,16 @@ class Activity_Embedding_generator:
 
             return model_frequency, real_frequency, self.activity_embedding
 
-'''
+
+"""
 This class is used to generate only trace embeddings from an event log.
 @param      log: where the activities and traces for embedding generation come from
             trace2vec_windows_size: window_size for trace2vec training
-            auto_train: whether the training for trace embedding starts automatically when an instance of
-                                    this class is created
-'''
+            auto_train: whether the training for trace embedding starts
+                        automatically when an instance of this class is created
+"""
+
+
 class Trace_Embedding_generator:
     def __init__(self, log, trace2vec_windows_size=3, auto_train=False):
         # log is expected to be a data type of List[List[str]]
@@ -193,9 +207,10 @@ class Trace_Embedding_generator:
         else:
             self.trained = False
 
-    '''
+    """
     this function starts to train model
-    '''
+    """
+
     def start_training(self):
         # create vocabulary for activities and traces
         self.act_vocab = generate_activity_vocab(self.log)
@@ -268,13 +283,15 @@ class Trace_Embedding_generator:
 
     def get_trace_embedding(self, model_log, real_log):
         if not self.trained:
-            raise ModelNotTrainedError('model for trace embeddings is not trained yet')
+            raise ModelNotTrainedError("model for trace embeddings is not trained yet")
         else:
             model_indices = [
-                self.trace_vocab[hash_trace(trace, self.act_vocab)] for trace in model_log
+                self.trace_vocab[hash_trace(trace, self.act_vocab)]
+                for trace in model_log
             ]
             real_indices = [
-                self.trace_vocab[hash_trace(trace, self.act_vocab)] for trace in real_log
+                self.trace_vocab[hash_trace(trace, self.act_vocab)]
+                for trace in real_log
             ]
 
             model_emb = self.trace_embedding[model_indices]
@@ -283,9 +300,11 @@ class Trace_Embedding_generator:
             return model_emb, real_emb
 
 
-'''
+"""
 custom error class for ModelNotTrainedError
-'''
+"""
+
+
 class ModelNotTrainedError(Exception):
     def __init__(self, *args):
         if args:
@@ -295,6 +314,6 @@ class ModelNotTrainedError(Exception):
 
     def __str__(self):
         if self.message:
-            return 'ModelNotTrainedError, {0} '.format(self.message)
+            return "ModelNotTrainedError, {0} ".format(self.message)
         else:
-            return 'ModelNotTrainedError has been raised'
+            return "ModelNotTrainedError has been raised"

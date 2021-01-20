@@ -1,4 +1,8 @@
-from conformance_checking.embedding.embedding_generator import Embedding_generator, Activity_Embedding_generator, Trace_Embedding_generator
+from conformance_checking.embedding.embedding_generator import (
+    Embedding_generator,
+    Activity_Embedding_generator,
+    Trace_Embedding_generator,
+)
 from pm4py.objects.log.importer.xes import importer as xes_importer
 
 if __name__ == "__main__":
@@ -8,16 +12,18 @@ if __name__ == "__main__":
     # If you want to test on the whole log, just remove the [:2000]
     log = [[event["concept:name"] for event in trace] for trace in log][:2000]
 
-
+    # example code for generating activity and trace embeddings at the same time
+    # this will raise error since start_training() function was not called
+    """
     # create instance of the embedding generator.
     # log: the log to train the embeddings on
     # trace2vec_window_size: number of context activities on each
     #                        side to predict target word
     # act2vec_window_size: number of positive samples for every activity
     # num_ns: number of negative samples for every positive sample in act2vec
-    '''
     emb_gen = Embedding_generator(
-        log, trace2vec_windows_size=4, act2vec_windows_size=4, num_ns=4, activity_auto_train=False,
+        log, trace2vec_windows_size=4, act2vec_windows_size=4, num_ns=4,
+        activity_auto_train=False,
         trace_auto_train=False
     )
 
@@ -47,10 +53,14 @@ if __name__ == "__main__":
     print(
         "The embedding of the first trace in the model log: \n{}".format(model_emb[0])
     )
-    '''
-    act_emb_gen = Activity_Embedding_generator(
-        log, act2vec_windows_size=4, num_ns=4
-    )
+    """
+
+    """
+    example for generating each activity and trace embeddings seperately
+    """
+    act_emb_gen = Activity_Embedding_generator(log, act2vec_windows_size=4, num_ns=4)
+    # start training manually
+    act_emb_gen.start_training()
 
     trace_emb_gen = Trace_Embedding_generator(
         log, trace2vec_windows_size=4, auto_train=True
@@ -62,7 +72,6 @@ if __name__ == "__main__":
 
     # get frequency tables for the model log and the real log
     # and an embedding lookup table
-    act_emb_gen.start_training()
     model_freq, real_freq, embeddings = act_emb_gen.get_activity_embedding(
         model_log, real_log
     )
@@ -83,4 +92,3 @@ if __name__ == "__main__":
     print(
         "The embedding of the first trace in the model log: \n{}".format(model_emb[0])
     )
-

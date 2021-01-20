@@ -2,6 +2,8 @@
 
 This is a tutorial for generating embeddings for activities and traces for a given log.
 
+An example code can be found in `Code/examples/embeddings.py`
+
 There are three possibilities for generating embeddings with a log:
  - generate activity and trace embeddings from a log at the same time
  - generate only activity embeddings from a log
@@ -37,7 +39,7 @@ emb_gen = Embedding_generator(
 after an instance of the generator class is created. Analogous for `trace_auto-train`
 
  - If the `activity_auto_train` or `trace_auto_train` is set to `False`, make sure to train models before trying to
-get embeddings, as following
+get embeddings, as following. Trying to get embeddings without training will raise `ModelNotTrainedError`
 ```python
 emb_gen.start_training()
 ```  
