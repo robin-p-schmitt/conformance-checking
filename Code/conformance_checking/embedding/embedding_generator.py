@@ -4,9 +4,12 @@ from conformance_checking.embedding.generate_training_data import (
     generate_trace_vocab,
     generate_act2vec_training_data,
     generate_trace2vec_training_data,
+    vectorize_trace,
+    hash_trace,
 )
 
 import tensorflow as tf
+from collections import Counter
 
 """
 This class is used to generate embeddings.
@@ -96,7 +99,7 @@ class Embedding_generator:
         act2vec.fit(dataset, epochs=10)
 
         # we need to return embedding!!
-        return act2vec.get_target_embedding()
+        return act2vec.layers[0].get_weights()[0]
 
     """
     this function trains an trace2vec model and returns an embedding of traces
@@ -136,18 +139,49 @@ class Embedding_generator:
 
         trace2vec.fit(dataset, epochs=10)
 
-        return trace2vec.get_trace_embedding()
+        return trace2vec.layers[1].get_weights()[0]
 
     """
     this function returns an embedding matrix of activities
     """
 
-    def get_activity_embedding(self):
-        return self.activity_embedding
+    def get_activity_embedding(self, model_log, real_log):
+        model_log_indices = [
+            vectorize_trace(trace, self.act_vocab) for trace in model_log
+        ]
+        real_log_indices = [
+            vectorize_trace(trace, self.act_vocab) for trace in real_log
+        ]
+
+        model_frequency = []
+        for trace in model_log_indices:
+            c = Counter()
+            for act in trace:
+                c.update([act])
+            model_frequency.append(c)
+
+        real_frequency = []
+        for trace in real_log_indices:
+            c = Counter()
+            for act in trace:
+                c.update([act])
+            real_frequency.append(c)
+
+        return model_frequency, real_frequency, self.activity_embedding
 
     """
     this function returns an embedding matrix of traces
     """
 
-    def get_trace_embedding(self):
-        return self.trace_embedding
+    def get_trace_embedding(self, model_log, real_log):
+        model_indices = [
+            self.trace_vocab[hash_trace(trace, self.act_vocab)] for trace in model_log
+        ]
+        real_indices = [
+            self.trace_vocab[hash_trace(trace, self.act_vocab)] for trace in real_log
+        ]
+
+        model_emb = self.trace_embedding[model_indices]
+        real_emb = self.trace_embedding[real_indices]
+
+        return model_emb, real_emb

@@ -18,8 +18,29 @@ if __name__ == "__main__":
         log, trace2vec_windows_size=4, act2vec_windows_size=4, num_ns=4
     )
 
-    # for now, the embedding generator does not output the actual embeddings,
-    # but just trains the models on the given log
-    # the trace2vec produces an accuracy of 98% at the moment,
-    # which we think has to be an error. We will investigate
-    # this in the next sprint.
+    # create example model and real log
+    model_log = log[:3]
+    real_log = log[3:8]
+
+    # get frequency tables for the model log and the real log
+    # and an embedding lookup table
+    model_freq, real_freq, embeddings = emb_gen.get_activity_embedding(
+        model_log, real_log
+    )
+
+    print(
+        "\nThe frequency of activity with index 10 in the",
+        "first trace from model_log: {}\n".format(model_freq[0][10]),
+    )
+    print(
+        "A list of dictionaries containing the counts of",
+        "activities in traces from the real log: \n{}\n".format(real_freq),
+    )
+    print("The embedding of the activity with index 0: \n{}\n".format(embeddings[0]))
+
+    # get the trace embeddings of traces in the model log and real log
+    model_emb, real_emb = emb_gen.get_trace_embedding(model_log, real_log)
+
+    print(
+        "The embedding of the first trace in the model log: \n{}".format(model_emb[0])
+    )
