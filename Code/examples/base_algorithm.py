@@ -31,14 +31,12 @@ class Mock(EmbeddingConformance):
 def main():
     model_traces = [
         ["hi", "foo"],
-        ["hi", "foo"],
         ["bar"],
         [],
         ["a", "long", "trace", "with", "doubled", "words", "like", "long"],
     ]
     real_traces = [
         ["foobar", "hi"],
-        ["bar"],
         ["bar"],
         [],
         ["a", "long", "long", "trace", "but", "not", "the", "same"],
