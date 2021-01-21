@@ -257,7 +257,7 @@ class Trace_Embedding_generator:
         window_size,
         batch_size=1024,
         buffer_size=10000,
-        embedding_dim=128,
+        embedding_dim=10,
     ):
         self.trained = True
 
