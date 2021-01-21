@@ -31,15 +31,20 @@ class Mock(EmbeddingConformance):
 
 def main():
     model_traces = [
-        ["King", "brave", "man"],
-        ["a", " b", "as", "as"],
-        ["b"]
+        ["hi", "foo"],
+        ["hi", "foo"],
+        ["bar"],
+        [],
+        ["a", "long", "trace", "with", "doubled", "words", "like", "long"],
     ]
     real_traces = [
-        ["Queen", "pretty", "woman", "hallo", "as"],
-        ["a", "b", "c", "d"],
-        ["d", "as"]
+        ["foobar", "hi"],
+        ["bar"],
+        ["bar"],
+        [],
+        ["a", "long", "long", "trace", "but", "not", "the", "same"],
     ]
+
     print("Model traces: %s" % str(model_traces))
     print("Real traces: %s" % str(real_traces))
     print("Executing mocked algorithm...")
