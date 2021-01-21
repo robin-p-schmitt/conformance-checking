@@ -1,3 +1,5 @@
+import pytest
+
 from conformance_checking.embedding.embedding_generator import (
     Trace_Embedding_generator,
 )
@@ -26,5 +28,9 @@ def test_trace_embeddings():
     # similarity of trace 2 and trace 3
     sim2 = sim[2, 1]
 
+    print(sim)
+
     # want trace3 to be more similar to trace1 than to trace2
     assert sim1 > sim2
+
+test_trace_embeddings()
