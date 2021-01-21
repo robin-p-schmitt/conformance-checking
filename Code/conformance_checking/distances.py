@@ -1,25 +1,25 @@
 from pyemd import emd
 import numpy as np
-from typing import Dict, Tuple
+from typing import Dict
 
 
 def calc_wmd(
-    model_embedding: Dict[Tuple, int], real_embedding: Dict[Tuple, int]
+    model_embedding: Dict[int, int], real_embedding: Dict[int, int],
+    context: np.ndarray
 ) -> float:
     """calculates WMD between two embeddings.
 
-    :param model_embedding: the embedding of the model trace
-            Dict[Tuple, int]: Tuple is the embedding of an activity,
-                    int is count of this activity within a trace
-    :param real_embedding: the embedding of the real trace
-            Dict[Tuple, int]: Tuple is the embedding of an activity,
-                    int is count of this activity within a trace
-    :return: a floating-point value
+    :param model_embedding: The first integer is the index of an activity,
+        the second integer is the times that the activity shows in the trace
+    :param real_embedding: The first integer is the index of an activity,
+        the second integer is the times that the activity shows in the trace
+    :param context: should be np.ndarray with dimension m x n,
+        where n is the dimension of embedding, m is number of embeddings,
+        context[i] is the embeddings of activity with index i
+    :return: the dissimiler of two traces as a floating-point value
     """
 
-    whole_embedding = set(list(model_embedding.keys()) + list(real_embedding.keys()))
-
-    vocab_len = len(whole_embedding)
+    vocab_len = len(context)
 
     # function: calculate normalized count of activity i within its trace
     def calc_d(embeddings: dict):
@@ -29,8 +29,8 @@ def calc_wmd(
         for value in embeddings.values():
             trace_len += value
 
-        for i, embedding in enumerate(whole_embedding):
-            count = embeddings.get(embedding, 0)
+        for i in range(vocab_len):
+            count = embeddings.get(i, 0)
             d[i] = count / trace_len
         return d
 
@@ -39,12 +39,12 @@ def calc_wmd(
 
     # calculate Euclidean distance between embeddings word i and word j
     distance_matrix = np.zeros((vocab_len, vocab_len), dtype=np.double)
-    for i, embedding1 in enumerate(whole_embedding):
-        for j, embedding2 in enumerate(whole_embedding):
+    for i in range(vocab_len):
+        for j in range(vocab_len):
             if distance_matrix[i, j] != 0.0:
                 continue
             distance_matrix[i, j] = distance_matrix[j, i] = np.sqrt(
-                np.sum((np.array(embedding1) - np.array(embedding2)) ** 2)
+                np.sum((context[i] - context[j]) ** 2)
             )
 
     dist = emd(d_model, d_real, distance_matrix)
@@ -90,23 +90,22 @@ def ACT(p, q, C, k):
 
 
 def calc_ict(
-    model_embedding: Dict[Tuple, int], real_embedding: Dict[Tuple, int], k: int = 3
+    model_embedding: Dict[int, int], real_embedding: Dict[int, int],
+    context: np.ndarray, k: int = 3
 ) -> float:
     """calculates ICT between two embeddings.
 
-    :param model_embedding: the embedding of the model trace
-            Dict[Tuple, int]: Tuple is the embedding of an activity,
-                    int is count of this activity within a trace
-    :param real_embedding: the embedding of the real trace
-            Dict[Tuple, int]: Tuple is the embedding of an activity,
-                    int is count of this activity within a trace
-    :param k: number of edges considered per activity
-    :return: a floating-point value
+    :param model_embedding: The first integer is the index of an activity,
+        the second integer is the times that the activity shows in the trace
+    :param real_embedding: The first integer is the index of an activity,
+        the second integer is the times that the activity shows in the trace
+    :param context: should be np.ndarray with dimension m x n,
+        where n is the dimension of embedding, m is number of embeddings,
+        context[i] is the embeddings of activity with index i
+    :return: the dissimiler of two traces as a floating-point value
     """
 
-    whole_embedding = set(list(model_embedding.keys()) + list(real_embedding.keys()))
-
-    vocab_len = len(whole_embedding)
+    vocab_len = len(context)
 
     # function: calculate normalized count of activity i within its trace
     def calc_d(embeddings: dict):
@@ -116,8 +115,8 @@ def calc_ict(
         for value in embeddings.values():
             trace_len += value
 
-        for i, embedding in enumerate(whole_embedding):
-            count = embeddings.get(embedding, 0)
+        for i in range(vocab_len):
+            count = embeddings.get(i, 0)
             d[i] = count / trace_len
         return d
 
@@ -126,12 +125,12 @@ def calc_ict(
 
     # calculate Euclidean distance between embeddings word i and word j
     distance_matrix = np.zeros((vocab_len, vocab_len), dtype=np.double)
-    for i, embedding1 in enumerate(whole_embedding):
-        for j, embedding2 in enumerate(whole_embedding):
+    for i in range(vocab_len):
+        for j in range(vocab_len):
             if distance_matrix[i, j] != 0.0:
                 continue
             distance_matrix[i, j] = distance_matrix[j, i] = np.sqrt(
-                np.sum((np.array(embedding1) - np.array(embedding2)) ** 2)
+                np.sum((context[i] - context[j]) ** 2)
             )
 
     dist = ACT(d_model, d_real, distance_matrix, k)
