@@ -67,7 +67,7 @@ class DissimilarityMatrix:
         """
         return self._dissimilarity_matrix
 
-    def calc_fitness(self) -> float:
+    def calc_fitness(self):
         fitness = np.average(self.get_dissimilarity_matrix().min(axis=0))
         return fitness
 
