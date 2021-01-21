@@ -4,8 +4,7 @@ from typing import Dict
 
 
 def calc_wmd(
-    model_embedding: Dict[int, int], real_embedding: Dict[int, int],
-    context: np.ndarray
+    model_embedding: Dict[int, int], real_embedding: Dict[int, int], context: np.ndarray
 ) -> float:
     """calculates WMD between two embeddings.
 
@@ -90,8 +89,10 @@ def ACT(p, q, C, k):
 
 
 def calc_ict(
-    model_embedding: Dict[int, int], real_embedding: Dict[int, int],
-    context: np.ndarray, k: int = 3
+    model_embedding: Dict[int, int],
+    real_embedding: Dict[int, int],
+    context: np.ndarray,
+    k: int = 3,
 ) -> float:
     """calculates ICT between two embeddings.
 
