@@ -1,9 +1,9 @@
 from conformance_checking.embedding.embedding_generator import (
-    Activity_Embedding_generator,
     Trace_Embedding_generator,
 )
 
 from sklearn.metrics.pairwise import cosine_similarity
+
 
 def test_trace_embeddings():
     # example traces (need to be modified)
@@ -23,9 +23,8 @@ def test_trace_embeddings():
 
     # similarity of trace 1 and trace 3
     sim1 = sim[2, 0]
-    #similarity of trace 2 and trace 3
+    # similarity of trace 2 and trace 3
     sim2 = sim[2, 1]
 
     # want trace3 to be more similar to trace1 than to trace2
     assert sim1 > sim2
-    
