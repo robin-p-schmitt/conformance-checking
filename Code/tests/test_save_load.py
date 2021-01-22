@@ -1,6 +1,6 @@
 import numpy as np
 import os
-import Code.conformance_checking as cf
+import conformance_checking as cf
 
 
 def tests_save_load(tmpdir):
