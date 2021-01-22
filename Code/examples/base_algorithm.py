@@ -16,10 +16,10 @@ class Mock(EmbeddingConformance):
     def _calc_embeddings(model_traces, real_traces):
         model_embeddings = [len(t) for t in model_traces]
         real_embeddings = [len(t) for t in real_traces]
-        return model_embeddings, real_embeddings
+        return model_embeddings, real_embeddings, None
 
     @staticmethod
-    def _calc_dissimilarity(model_embedding, real_embedding):
+    def _calc_dissimilarity(model_embedding, real_embedding, _context):
         max_len = max(model_embedding, real_embedding)
         min_len = min(model_embedding, real_embedding)
         if max_len == 0:
@@ -31,12 +31,14 @@ class Mock(EmbeddingConformance):
 def main():
     model_traces = [
         ["hi", "foo"],
+        ["hi", "foo"],
         ["bar"],
         [],
         ["a", "long", "trace", "with", "doubled", "words", "like", "long"],
     ]
     real_traces = [
         ["foobar", "hi"],
+        ["bar"],
         ["bar"],
         [],
         ["a", "long", "long", "trace", "but", "not", "the", "same"],
