@@ -30,6 +30,8 @@ def test_trace_embeddings():
 
     print(sim)
 
+    print(embeddings)
+
     # want trace3 to be more similar to trace1 than to trace2
     assert sim1 > sim2
 
