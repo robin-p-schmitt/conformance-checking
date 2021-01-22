@@ -53,9 +53,6 @@ def main():
     print(dissimilarity_matrix.get_dissimilarity_matrix())
     print(dissimilarity_matrix.calc_fitness())
     print(dissimilarity_matrix.calc_precision())
-    dissimilarity_matrix.save("matrix2.npy")
-    b = dissimilarity_matrix.load("matrix2.npy")
-    print(b)
 
 
 if __name__ == "__main__":

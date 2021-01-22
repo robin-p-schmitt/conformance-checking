@@ -78,9 +78,10 @@ class DissimilarityMatrix:
     def save(self, path):
         np.save(path, self.get_dissimilarity_matrix())
 
-    def load(self, path):
-        np.load(path)
-        return self.get_dissimilarity_matrix()
+    @staticmethod
+    def load(path):
+        matrix = np.load(path)
+        return DissimilarityMatrix(matrix)
 
 
 class EmbeddingConformance(ABC):
