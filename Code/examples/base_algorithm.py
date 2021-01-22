@@ -1,4 +1,4 @@
-from Code.conformance_checking import EmbeddingConformance
+from conformance_checking import EmbeddingConformance
 
 
 class Mock(EmbeddingConformance):
