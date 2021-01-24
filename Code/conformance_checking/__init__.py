@@ -68,11 +68,11 @@ class DissimilarityMatrix:
         return self._dissimilarity_matrix
 
     def calc_fitness(self) -> float:
-        fitness = np.average(self.get_dissimilarity_matrix().min(axis=0))
+        fitness = 1 - np.average(self.get_dissimilarity_matrix().min(axis=0))
         return fitness
 
     def calc_precision(self) -> float:
-        precision = np.average(self.get_dissimilarity_matrix().min(axis=1))
+        precision = 1 - np.average(self.get_dissimilarity_matrix().min(axis=1))
         return precision
 
     def save(self, path):
