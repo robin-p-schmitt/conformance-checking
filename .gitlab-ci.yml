@@ -1,5 +1,9 @@
 image: continuumio/miniconda3:latest
 
+stages:
+  - test
+  - coverage
+
 before_script:
   - conda --version  # Print out conda version for debugging
   - cd Code
@@ -9,10 +13,12 @@ before_script:
   - conda activate conformance-checking
 
 test:
+  stage: test
   script:
     - tox
 
 coverage:
+  stage: coverage
   script:
     - cd ..
     - pytest --doctest-modules --cov=. --cov-report=xml

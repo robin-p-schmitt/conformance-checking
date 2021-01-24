@@ -57,6 +57,7 @@ class DissimilarityMatrix:
 
         :param dissimilarity_matrix: the NumPy dissimilarity matrix
         """
+
         self._dissimilarity_matrix = dissimilarity_matrix
 
     def get_dissimilarity_matrix(self) -> np.ndarray:
@@ -66,18 +67,21 @@ class DissimilarityMatrix:
         """
         return self._dissimilarity_matrix
 
-    def calc_fitness(self):
-        raise NotImplementedError
+    def calc_fitness(self) -> float:
+        fitness = 1 - np.average(self.get_dissimilarity_matrix().min(axis=0))
+        return fitness
 
-    def calc_precision(self):
-        raise NotImplementedError
+    def calc_precision(self) -> float:
+        precision = 1 - np.average(self.get_dissimilarity_matrix().min(axis=1))
+        return precision
 
     def save(self, path):
-        raise NotImplementedError
+        np.save(path, self.get_dissimilarity_matrix())
 
     @staticmethod
     def load(path):
-        raise NotImplementedError
+        matrix = np.load(path)
+        return DissimilarityMatrix(matrix)
 
 
 class EmbeddingConformance(ABC):
@@ -98,39 +102,65 @@ class EmbeddingConformance(ABC):
         :return: The dissimilarity matrix.
         """
 
-        model_embeddings, real_embeddings = self._calc_embeddings(
-            model_traces, real_traces
+        def deduplicate(traces):
+            known = {}
+            deduplicated = []
+            mapping = []
+            for i, trace in enumerate(traces):
+                trace_tuple = tuple(trace)
+                if trace_tuple in known:
+                    di = known[trace_tuple]
+                else:
+                    di = len(deduplicated)
+                    deduplicated.append(trace)
+                    known[trace_tuple] = di
+                    mapping.append([])
+                mapping[di].append(i)
+            return deduplicated, mapping
+
+        model_deduplicated, model_mappings = deduplicate(model_traces)
+        real_deduplicated, real_mappings = deduplicate(real_traces)
+
+        model_embeddings, real_embeddings, context = self._calc_embeddings(
+            model_deduplicated, real_deduplicated
         )
         dissimilarity_matrix = np.zeros(
             (len(model_traces), len(real_traces)), dtype=np.float32
         )
-        for i, model_embedding in enumerate(model_embeddings):
-            for j, real_embedding in enumerate(real_embeddings):
-                dissimilarity_matrix[i, j] = self._calc_dissimilarity(
-                    model_embedding, real_embedding
+        for model_embedding, model_map in zip(model_embeddings, model_mappings):
+            for real_embedding, real_map in zip(real_embeddings, real_mappings):
+                dissimilarity = self._calc_dissimilarity(
+                    model_embedding, real_embedding, context
                 )
+                for i in model_map:
+                    for j in real_map:
+                        dissimilarity_matrix[i, j] = dissimilarity
         return DissimilarityMatrix(dissimilarity_matrix)
 
     @staticmethod
     @abstractmethod
     def _calc_embeddings(
         model_traces: List[List[str]], real_traces: List[List[str]]
-    ) -> Tuple[List[Any], List[Any]]:
+    ) -> Tuple[List[Any], List[Any], Any]:
         """Calculates the embeddings of the traces.
 
         :param model_traces: The traces coming from the model.
         :param real_traces: The traces coming from the real log.
-        :return: The embeddings of the traces of the model and real log.
+        :return: The embeddings of the traces of the model and real log
+        and an implementation-specific context object.
         """
         pass  # pragma: no cover
 
     @staticmethod
     @abstractmethod
-    def _calc_dissimilarity(model_embedding: Any, real_embedding: Any) -> float:
+    def _calc_dissimilarity(
+        model_embedding: Any, real_embedding: Any, context: Any
+    ) -> float:
         """Calculates the dissimilarity between two embeddings.
 
         :param model_embedding: the embedding of the model trace
         :param real_embedding: the embedding of the real trace
+        :param context: the context object (implementation specific)
         :return: a floating-point value in [0, 1] where 1 is
         the maximum dissimilarity
         """

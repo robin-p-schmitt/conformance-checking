@@ -30,6 +30,9 @@ if __name__ == "__main__":
         trace_auto_train=False,
     )
 
+    # start to train the models
+    emb_gen.start_training()
+
     # create example model and real log
     model_log = log[:3]
     real_log = log[3:8]
