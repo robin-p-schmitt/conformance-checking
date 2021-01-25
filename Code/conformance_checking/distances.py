@@ -15,7 +15,7 @@ def calc_wmd(
     :param context: should be np.ndarray with dimension m x n,
         where n is the dimension of embedding, m is number of embeddings,
         context[i] is the embeddings of activity with index i
-    :return: the dissimiler of two traces as a floating-point value
+    :return: the dissimilarity of two traces as a floating-point value
     """
 
     vocab_len = len(context)
@@ -103,7 +103,7 @@ def calc_ict(
     :param context: should be np.ndarray with dimension m x n,
         where n is the dimension of embedding, m is number of embeddings,
         context[i] is the embeddings of activity with index i
-    :return: the dissimiler of two traces as a floating-point value
+    :return: the dissimilarity of two traces as a floating-point value
     """
 
     vocab_len = len(context)
