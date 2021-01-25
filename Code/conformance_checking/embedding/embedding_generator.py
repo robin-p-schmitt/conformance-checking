@@ -133,21 +133,45 @@ class Activity_Embedding_generator:
     ):
         self.trained = True
 
-        dataset = tf.data.Dataset.from_tensor_slices(((targets, contexts), labels))
-        dataset = dataset.shuffle(buffer_size).batch(batch_size, drop_remainder=False)
+        self.act2vec_dataset = tf.data.Dataset.from_tensor_slices(
+            ((targets, contexts), labels)
+        )
+        self.act2vec_dataset = self.act2vec_dataset.shuffle(buffer_size).batch(
+            batch_size, drop_remainder=False
+        )
 
         vocab_size = len(vocab)
-        act2vec = Act2Vec(vocab_size, embedding_dim, num_ns)
-        act2vec.compile(
+        self.act2vec = Act2Vec(vocab_size, embedding_dim, num_ns)
+        self.act2vec.compile(
             optimizer="adam",
             loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
             metrics=["accuracy"],
         )
 
-        act2vec.fit(dataset, epochs=10)
+        self.act2vec.fit(self.act2vec_dataset, epochs=10, verbose=0)
 
         # we need to return embedding!!
-        return act2vec.layers[0].get_weights()[0]
+        return self.act2vec.layers[0].get_weights()[0]
+
+    def evaluate_model(self):
+        """Returns the accuracy of the trained act2vec model.
+
+        This function evaluates the act2vec model on the dataset that was used for
+        training. The training dataset is used because act2vec is an unsupervised
+        algorithm and therefore no heldout dataset is used for evaluation.
+
+        Returns:
+            score (float): accuracy score of the evaluation.
+
+        """
+        if self.act2vec is None:
+            raise ModelNotTrainedError(
+                "model for activity embeddings is not trained yet"
+            )
+
+        scores = self.act2vec.evaluate(self.act2vec_dataset)
+
+        return scores[1]
 
     """
     this function returns an embedding matrix of activities
@@ -257,25 +281,48 @@ class Trace_Embedding_generator:
         window_size,
         batch_size=1024,
         buffer_size=10000,
-        embedding_dim=10,
+        embedding_dim=128,
     ):
         self.trained = True
 
-        dataset = tf.data.Dataset.from_tensor_slices(((targets, contexts), labels))
-        dataset = dataset.shuffle(buffer_size).batch(batch_size, drop_remainder=False)
+        self.trace2vec_dataset = tf.data.Dataset.from_tensor_slices(
+            ((targets, contexts), labels)
+        )
+        self.trace2vec_dataset = self.trace2vec_dataset.shuffle(buffer_size).batch(
+            batch_size, drop_remainder=False
+        )
 
-        trace2vec = Trace2Vec(
+        self.trace2vec = Trace2Vec(
             len(trace_vocab), len(act_vocab), embedding_dim, window_size * 2
         )
-        trace2vec.compile(
+        self.trace2vec.compile(
             optimizer="adam",
             loss=tf.keras.losses.CategoricalCrossentropy(from_logits=False),
             metrics=["accuracy"],
         )
 
-        trace2vec.fit(dataset, epochs=10)
+        self.trace2vec.fit(self.trace2vec_dataset, epochs=10, verbose=0)
 
-        return trace2vec.layers[1].get_weights()[0]
+        return self.trace2vec.layers[1].get_weights()[0]
+
+    def evaluate_model(self):
+        """Returns the accuracy of the trained trace2vec model.
+
+        This function evaluates the trace2vec model on the dataset that
+        was used for training. The training dataset is used because trace2vec
+        is an unsupervised algorithm and therefore no heldout dataset is used
+        for evaluation.
+
+        Returns:
+            score (float): accuracy score of the evaluation.
+
+        """
+        if self.trace2vec is None:
+            raise ModelNotTrainedError("model for trace embeddings is not trained yet")
+
+        scores = self.trace2vec.evaluate(self.trace2vec_dataset)
+
+        return scores[1]
 
     """
     this function returns an embedding matrix of traces
