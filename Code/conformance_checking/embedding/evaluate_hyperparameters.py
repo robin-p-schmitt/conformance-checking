@@ -4,13 +4,18 @@ from conformance_checking.embedding.embedding_generator import (
 )
 from pm4py.objects.log.importer.xes import importer as xes_importer
 import matplotlib.pyplot as plt
+import os
 
+absPath = os.path.abspath(__file__)
+fileDir = os.path.dirname(absPath)
+conformance = os.path.dirname(fileDir)
+code = os.path.dirname(conformance)
+data = os.path.join(code, "data")
 
-# load a log with pm4py
 variant = xes_importer.Variants.ITERPARSE
 parameters = {variant.value.Parameters.MAX_TRACES: 2000}
 log = xes_importer.apply(
-    "data/BPI_Challenge_2012.xes", variant=variant, parameters=parameters
+    os.path.join(data, "BPI_Challenge_2012.xes"), variant=variant, parameters=parameters
 )
 
 # get log as format List[List[str]]
