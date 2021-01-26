@@ -68,12 +68,24 @@ This class is used to generate only activity embeddings from an event log.
 
 
 class Activity_Embedding_generator:
-    def __init__(self, log, act2vec_windows_size=3, num_ns=4, auto_train=False):
+    def __init__(
+        self,
+        log,
+        act2vec_windows_size=2,
+        num_ns=2,
+        auto_train=False,
+        num_epochs=10,
+        batch_size=1024,
+        embedding_size=128,
+    ):
         # log is expected to be a data type of List[List[str]]
         self.log = log
 
         self.num_ns = num_ns
         self.act2vec_windows_size = act2vec_windows_size
+        self.num_epochs = num_epochs
+        self.batch_size = batch_size
+        self.embedding_size = embedding_size
         self.act2vec_training_data = {}
 
         if auto_train:
@@ -108,6 +120,9 @@ class Activity_Embedding_generator:
             self.act2vec_training_data["labels"],
             self.act_vocab,
             self.num_ns,
+            self.batch_size,
+            self.num_epochs,
+            self.embedding_size,
         )
 
     """
@@ -128,8 +143,9 @@ class Activity_Embedding_generator:
         vocab,
         num_ns,
         batch_size=1024,
-        buffer_size=10000,
+        num_epochs=10,
         embedding_dim=128,
+        buffer_size=10000,
     ):
         self.trained = True
 
@@ -148,7 +164,7 @@ class Activity_Embedding_generator:
             metrics=["accuracy"],
         )
 
-        self.act2vec.fit(self.act2vec_dataset, epochs=10, verbose=0)
+        self.act2vec.fit(self.act2vec_dataset, epochs=num_epochs, verbose=0)
 
         # we need to return embedding!!
         return self.act2vec.layers[0].get_weights()[0]
@@ -217,11 +233,22 @@ This class is used to generate only trace embeddings from an event log.
 
 
 class Trace_Embedding_generator:
-    def __init__(self, log, trace2vec_windows_size=3, auto_train=False):
+    def __init__(
+        self,
+        log,
+        trace2vec_windows_size=2,
+        auto_train=False,
+        num_epochs=10,
+        batch_size=1024,
+        embedding_size=128,
+    ):
         # log is expected to be a data type of List[List[str]]
         self.log = log
 
         self.trace2vec_windows_size = trace2vec_windows_size
+        self.num_epochs = num_epochs
+        self.batch_size = batch_size
+        self.embedding_size = embedding_size
         self.trace2vec_training_data = {}
 
         if auto_train:
@@ -257,6 +284,9 @@ class Trace_Embedding_generator:
             self.act_vocab,
             self.trace_vocab,
             self.trace2vec_windows_size,
+            self.batch_size,
+            self.num_epochs,
+            self.embedding_size,
         )
 
     """
@@ -280,8 +310,9 @@ class Trace_Embedding_generator:
         trace_vocab,
         window_size,
         batch_size=1024,
-        buffer_size=10000,
+        num_epochs=10,
         embedding_dim=128,
+        buffer_size=10000,
     ):
         self.trained = True
 
@@ -301,7 +332,7 @@ class Trace_Embedding_generator:
             metrics=["accuracy"],
         )
 
-        self.trace2vec.fit(self.trace2vec_dataset, epochs=10, verbose=0)
+        self.trace2vec.fit(self.trace2vec_dataset, epochs=num_epochs, verbose=0)
 
         return self.trace2vec.layers[1].get_weights()[0]
 
