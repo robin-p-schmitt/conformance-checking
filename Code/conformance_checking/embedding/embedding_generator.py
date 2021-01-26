@@ -164,7 +164,7 @@ class Activity_Embedding_generator:
             score (float): accuracy score of the evaluation.
 
         """
-        if self.act2vec is None:
+        if not self.trained:
             raise ModelNotTrainedError(
                 "model for activity embeddings is not trained yet"
             )

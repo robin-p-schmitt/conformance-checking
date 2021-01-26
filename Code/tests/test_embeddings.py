@@ -1,11 +1,13 @@
 from conformance_checking.embedding.embedding_generator import (
     Activity_Embedding_generator,
     Trace_Embedding_generator,
+    ModelNotTrainedError,
 )
 
 import numpy as np
 from pm4py.objects.log.importer.xes import importer as xes_importer
 import os
+import pytest
 
 absPath = os.path.abspath(__file__)
 fileDir = os.path.dirname(absPath)
@@ -56,3 +58,25 @@ def test_act2vec_emb():
         len(activities) + 1,
         128,
     )
+
+
+def test_exceptions():
+    with pytest.raises(
+        ModelNotTrainedError, match="model for activity embeddings is not trained yet"
+    ):
+        act2vec_gen_not_trained.evaluate_model()
+
+    with pytest.raises(
+        ModelNotTrainedError, match="model for activity embeddings is not trained yet"
+    ):
+        act2vec_gen_not_trained.get_activity_embedding([], [])
+
+    with pytest.raises(
+        ModelNotTrainedError, match="model for trace embeddings is not trained yet"
+    ):
+        trace2vec_gen_not_trained.get_trace_embedding([], [])
+
+    with pytest.raises(
+        ModelNotTrainedError, match="model for trace embeddings is not trained yet"
+    ):
+        trace2vec_gen_not_trained.get_trace_embedding([], [])
