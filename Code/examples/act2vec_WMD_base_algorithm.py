@@ -22,7 +22,7 @@ def main():
     print("Executing EmbeddingConformance_act2vec algorithm...")
     dissimilarity_matrix = EmbeddingConformance_WMD().execute(model_traces, real_traces)
 
-    print("Dissimilar matrix: ")
+    print("Dissimilarity matrix: ")
     print(print(dissimilarity_matrix.get_dissimilarity_matrix()))
 
 

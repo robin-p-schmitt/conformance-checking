@@ -1,6 +1,6 @@
 from conformance_checking.__init__ import EmbeddingConformance
+from conformance_checking.distances import calc_wmd
 from conformance_checking.embedding.embedding_generator import Embedding_generator
-from pyemd import emd
 import numpy as np
 from typing import Dict, Tuple, List, Any
 
@@ -36,7 +36,7 @@ class EmbeddingConformance_WMD(EmbeddingConformance):
         )
 
         # start to train the models
-        emb_gen.start_training()
+        emb_gen.activity_embedding_generator.start_training()
 
         # return frequency tables for the model log and the real log
         # and an embedding lookup table
@@ -57,37 +57,7 @@ class EmbeddingConformance_WMD(EmbeddingConformance):
         :param context: should be np.ndarray with dimension m x n,
             where n is the dimension of embedding, m is number of embeddings,
             context[i] is the embeddings of activity with index i
-        :return: the dissimiler of two traces as a floating-point value
+        :return: the dissimilarity of two traces as a floating-point value
         """
 
-        vocab_len = len(context)
-
-        # function: calculate normalized count of activity i within its trace
-        def calc_d(embeddings: dict):
-            d = np.zeros(vocab_len, dtype=np.double)
-            # calculate the length of trace
-            trace_len = 0
-            for value in embeddings.values():
-                trace_len += value
-
-            for i in range(vocab_len):
-                count = embeddings.get(i, 0)
-                d[i] = count / trace_len
-            return d
-
-        d_model = calc_d(model_embedding)
-        d_real = calc_d(real_embedding)
-
-        # calculate Euclidean distance between embeddings word i and word j
-        distance_matrix = np.zeros((vocab_len, vocab_len), dtype=np.double)
-        for i in range(vocab_len):
-            for j in range(vocab_len):
-                if distance_matrix[i, j] != 0.0:
-                    continue
-                distance_matrix[i, j] = distance_matrix[j, i] = np.sqrt(
-                    np.sum((context[i] - context[j]) ** 2)
-                )
-
-        dist = emd(d_model, d_real, distance_matrix)
-
-        return dist
+        return calc_wmd(model_embedding, real_embedding, context)

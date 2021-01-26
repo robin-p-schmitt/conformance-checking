@@ -9,7 +9,7 @@ class EmbeddingConformance_trace2vec(EmbeddingConformance):
     Inherit from EmbeddingConformance.
     Implement abstrackt methods _calc_embeddings and _calc_dissimilarity.
     Based on trace2vec.
-    Dissmilarity can be calculated using cosine distance.
+    Dissimilarity can be calculated using cosine distance.
     """
 
     @staticmethod
@@ -33,10 +33,14 @@ class EmbeddingConformance_trace2vec(EmbeddingConformance):
         )
 
         # start to train the models
-        emb_gen.start_training()
+        emb_gen.trace_embedding_generator.start_training()
+
+        model_embeddings, real_embeddings = emb_gen.get_trace_embedding(
+            model_traces, real_traces
+        )
 
         # return the trace embeddings of traces in the model log and real log
-        return (emb_gen.get_trace_embedding(model_traces, real_traces), None)
+        return (model_embeddings, real_embeddings, None)
 
     @staticmethod
     def _calc_dissimilarity(

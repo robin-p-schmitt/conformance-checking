@@ -24,7 +24,7 @@ def main():
         model_traces, real_traces
     )
 
-    print("Dissimilar matrix: ")
+    print("Dissimilarity matrix: ")
     print(print(dissimilarity_matrix.get_dissimilarity_matrix()))
 
 
