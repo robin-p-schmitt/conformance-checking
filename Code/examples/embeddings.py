@@ -1,7 +1,7 @@
 from conformance_checking.embedding.embedding_generator import (
-    Embedding_generator,
-    Activity_Embedding_generator,
-    Trace_Embedding_generator,
+    EmbeddingGenerator,
+    ActivityEmbeddingGenerator,
+    TraceEmbeddingGenerator,
 )
 from pm4py.objects.log.importer.xes import importer as xes_importer
 
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     #                        side to predict target word
     # act2vec_window_size: number of positive samples for every activity
     # num_ns: number of negative samples for every positive sample in act2vec
-    emb_gen = Embedding_generator(
+    emb_gen = EmbeddingGenerator(
         log,
         trace2vec_windows_size=4,
         act2vec_windows_size=4,
@@ -68,11 +68,11 @@ if __name__ == "__main__":
     example for generating each activity and trace embeddings seperately
     """
 
-    act_emb_gen = Activity_Embedding_generator(log, act2vec_windows_size=4, num_ns=4)
+    act_emb_gen = ActivityEmbeddingGenerator(log, act2vec_windows_size=4, num_ns=4)
     # start training manually
     act_emb_gen.start_training()
 
-    trace_emb_gen = Trace_Embedding_generator(
+    trace_emb_gen = TraceEmbeddingGenerator(
         log, trace2vec_windows_size=4, auto_train=True
     )
 

@@ -24,7 +24,7 @@ This class is used to generate both activity and trace embeddings from an event 
 """
 
 
-class Embedding_generator:
+class EmbeddingGenerator:
     def __init__(
         self,
         log,
@@ -34,10 +34,10 @@ class Embedding_generator:
         activity_auto_train=False,
         trace_auto_train=False,
     ):
-        self.activity_embedding_generator = Activity_Embedding_generator(
+        self.activity_embedding_generator = ActivityEmbeddingGenerator(
             log, act2vec_windows_size, num_ns, activity_auto_train
         )
-        self.trace_embedding_generator = Trace_Embedding_generator(
+        self.trace_embedding_generator = TraceEmbeddingGenerator(
             log, trace2vec_windows_size, trace_auto_train
         )
 
@@ -67,7 +67,7 @@ This class is used to generate only activity embeddings from an event log.
 """
 
 
-class Activity_Embedding_generator:
+class ActivityEmbeddingGenerator:
     def __init__(
         self,
         log,
@@ -232,7 +232,7 @@ This class is used to generate only trace embeddings from an event log.
 """
 
 
-class Trace_Embedding_generator:
+class TraceEmbeddingGenerator:
     def __init__(
         self,
         log,
