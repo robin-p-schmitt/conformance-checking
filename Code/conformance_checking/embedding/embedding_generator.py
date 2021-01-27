@@ -303,8 +303,11 @@ class TraceEmbeddingGenerator:
             score (float): accuracy score of the evaluation.
 
         """
-        if self.trace2vec is None:
-            raise ModelNotTrainedError("model for trace embeddings is not trained yet")
+
+        if not self.trained:
+            raise ModelNotTrainedError(
+                "model for activity embeddings is not trained yet"
+            )
 
         scores = self.trace2vec.evaluate(self.trace2vec_dataset)
 
