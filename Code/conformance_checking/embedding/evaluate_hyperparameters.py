@@ -1,6 +1,6 @@
 from conformance_checking.embedding.embedding_generator import (
-    Activity_Embedding_generator,
-    Trace_Embedding_generator,
+    ActivityEmbeddingGenerator,
+    TraceEmbeddingGenerator,
 )
 from pm4py.objects.log.importer.xes import importer as xes_importer
 import matplotlib.pyplot as plt
@@ -70,28 +70,28 @@ def eval_act2vec(log):
 
     # different window sizes
     for window_size in [1, 2, 3, 4, 5]:
-        gen = Activity_Embedding_generator(log, window_size, auto_train=True)
+        gen = ActivityEmbeddingGenerator(log, window_size, auto_train=True)
         acc = gen.evaluate_model()
         parameters["window_size"].append(window_size)
         results["window_size"].append(acc)
 
     # different number of negative samples
     for num_ns in [1, 2, 3, 4, 5]:
-        gen = Activity_Embedding_generator(log, num_ns=num_ns, auto_train=True)
+        gen = ActivityEmbeddingGenerator(log, num_ns=num_ns, auto_train=True)
         acc = gen.evaluate_model()
         parameters["num_ns"].append(num_ns)
         results["num_ns"].append(acc)
 
     # different batch sizes
     for batch_size in [64, 128, 512, 1024]:
-        gen = Activity_Embedding_generator(log, batch_size=batch_size, auto_train=True)
+        gen = ActivityEmbeddingGenerator(log, batch_size=batch_size, auto_train=True)
         acc = gen.evaluate_model()
         parameters["batch_size"].append(batch_size)
         results["batch_size"].append(acc)
 
     # different embedding sizes
     for embedding_size in [16, 32, 64, 128]:
-        gen = Activity_Embedding_generator(
+        gen = ActivityEmbeddingGenerator(
             log, embedding_size=embedding_size, auto_train=True
         )
         acc = gen.evaluate_model()
@@ -134,21 +134,21 @@ def eval_trace2vec(log):
 
     # different window sizes
     for window_size in [1, 2, 3, 4, 5, 8]:
-        gen = Trace_Embedding_generator(log, window_size, auto_train=True)
+        gen = TraceEmbeddingGenerator(log, window_size, auto_train=True)
         acc = gen.evaluate_model()
         parameters["window_size"].append(window_size)
         results["window_size"].append(acc)
 
     # different batch sizes
     for batch_size in [64, 128, 512, 1024]:
-        gen = Trace_Embedding_generator(log, batch_size=batch_size, auto_train=True)
+        gen = TraceEmbeddingGenerator(log, batch_size=batch_size, auto_train=True)
         acc = gen.evaluate_model()
         parameters["batch_size"].append(batch_size)
         results["batch_size"].append(acc)
 
     # different embedding sizes
     for embedding_size in [16, 32, 64, 128]:
-        gen = Trace_Embedding_generator(
+        gen = TraceEmbeddingGenerator(
             log, embedding_size=embedding_size, auto_train=True
         )
         acc = gen.evaluate_model()
