@@ -17,11 +17,11 @@ log = import_xes(os.path.join(data, "BPI_Challenge_2012.xes"))
 log = log[:1000]
 activities = set([act for trace in log for act in trace])
 
-trace2vec_gen_trained = Trace_Embedding_generator(log, auto_train=True)
-act2vec_gen_trained = Activity_Embedding_generator(log, auto_train=True)
+trace2vec_gen_trained = TraceEmbeddingGenerator(log, auto_train=True)
+act2vec_gen_trained = ActivityEmbeddingGenerator(log, auto_train=True)
 
-trace2vec_gen_not_trained = Trace_Embedding_generator(log)
-act2vec_gen_not_trained = Activity_Embedding_generator(log)
+trace2vec_gen_not_trained = TraceEmbeddingGenerator(log)
+act2vec_gen_not_trained = ActivityEmbeddingGenerator(log)
 
 
 # assert accuracy of trace2vec
