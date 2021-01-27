@@ -6,19 +6,15 @@ from conformance_checking.embedding.generate_training_data import (
 )
 import os
 import numpy as np
-from pm4py.objects.log.importer.xes import importer as xes_importer
+from conformance_checking import import_xes
 
 absPath = os.path.abspath(__file__)
 fileDir = os.path.dirname(absPath)
 code = os.path.dirname(fileDir)
 data = os.path.join(code, "data")
+log = import_xes(os.path.join(data, "BPI_Challenge_2012.xes"))
+log = log[:50]
 
-variant = xes_importer.Variants.ITERPARSE
-parameters = {variant.value.Parameters.MAX_TRACES: 50}
-log = xes_importer.apply(
-    os.path.join(data, "BPI_Challenge_2012.xes"), variant=variant, parameters=parameters
-)
-log = [[event["concept:name"] for event in trace] for trace in log]
 unique_activities = set([act for trace in log for act in trace])
 unique_traces = np.unique(log)
 

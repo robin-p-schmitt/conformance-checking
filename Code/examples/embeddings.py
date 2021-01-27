@@ -3,18 +3,18 @@ from conformance_checking.embedding.embedding_generator import (
     ActivityEmbeddingGenerator,
     TraceEmbeddingGenerator,
 )
-from pm4py.objects.log.importer.xes import importer as xes_importer
+
+from conformance_checking import import_xes
+import os
 
 if __name__ == "__main__":
-    # load a log with pm4py
-    variant = xes_importer.Variants.ITERPARSE
-    parameters = {variant.value.Parameters.MAX_TRACES: 2000}
-    log = xes_importer.apply(
-        "data/BPI_Challenge_2012.xes", variant=variant, parameters=parameters
-    )
-
-    # get log as format List[List[str]]
-    log = [[event["concept:name"] for event in trace] for trace in log]
+    # load a log with our importer
+    absPath = os.path.abspath(__file__)
+    fileDir = os.path.dirname(absPath)
+    code = os.path.dirname(fileDir)
+    data = os.path.join(code, "data")
+    log = import_xes(os.path.join(data, "BPI_Challenge_2012.xes"))
+    log = log[:2000]
 
     # example code for generating activity and trace embeddings at the same time
     # this will raise error since start_training() function was not called

@@ -1,11 +1,11 @@
 from conformance_checking.embedding.embedding_generator import (
-    Activity_Embedding_generator,
-    Trace_Embedding_generator,
+    ActivityEmbeddingGenerator,
+    TraceEmbeddingGenerator,
     ModelNotTrainedError,
 )
 
 import numpy as np
-from pm4py.objects.log.importer.xes import importer as xes_importer
+from conformance_checking import import_xes
 import os
 import pytest
 
@@ -13,13 +13,8 @@ absPath = os.path.abspath(__file__)
 fileDir = os.path.dirname(absPath)
 code = os.path.dirname(fileDir)
 data = os.path.join(code, "data")
-
-variant = xes_importer.Variants.ITERPARSE
-parameters = {variant.value.Parameters.MAX_TRACES: 1000}
-log = xes_importer.apply(
-    os.path.join(data, "BPI_Challenge_2012.xes"), variant=variant, parameters=parameters
-)
-log = [[event["concept:name"] for event in trace] for trace in log]
+log = import_xes(os.path.join(data, "BPI_Challenge_2012.xes"))
+log = log[:1000]
 activities = set([act for trace in log for act in trace])
 
 trace2vec_gen_trained = Trace_Embedding_generator(log, auto_train=True)
