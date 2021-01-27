@@ -3,6 +3,13 @@ import numpy as np
 from typing import Dict
 
 
+def _handle_empty_traces(model_embedding, real_embedding):
+    if len(model_embedding) == len(real_embedding) == 0:
+        return 0
+    else:
+        return 1
+
+
 def calc_wmd(
     model_embedding: Dict[int, int], real_embedding: Dict[int, int], context: np.ndarray
 ) -> float:
@@ -17,6 +24,9 @@ def calc_wmd(
         context[i] is the embeddings of activity with index i
     :return: the dissimilarity of two traces as a floating-point value
     """
+
+    if len(model_embedding) == 0 or len(real_embedding) == 0:
+        return _handle_empty_traces(model_embedding, real_embedding)
 
     vocab_len = len(context)
 
@@ -105,6 +115,9 @@ def calc_ict(
         context[i] is the embeddings of activity with index i
     :return: the dissimilarity of two traces as a floating-point value
     """
+
+    if len(model_embedding) == 0 or len(real_embedding) == 0:
+        return _handle_empty_traces(model_embedding, real_embedding)
 
     vocab_len = len(context)
 
