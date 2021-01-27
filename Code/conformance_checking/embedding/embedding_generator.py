@@ -336,12 +336,10 @@ class TraceEmbeddingGenerator:
             return model_emb, real_emb
 
 
-"""
-custom error class for ModelNotTrainedError
-"""
-
-
 class ModelNotTrainedError(Exception):
+    """
+    custom error class for ModelNotTrainedError
+    """
     def __init__(self, *args):
         if args:
             self.message = args[0]
@@ -350,6 +348,6 @@ class ModelNotTrainedError(Exception):
 
     def __str__(self):
         if self.message:
-            return "ModelNotTrainedError, {0} ".format(self.message)
+            return "ModelNotTrainedError, {0}".format(self.message)
         else:
             return "ModelNotTrainedError has been raised"

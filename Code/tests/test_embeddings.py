@@ -53,6 +53,9 @@ def test_embeddings_generator():
 
 
 def test_exceptions():
+    assert str(ModelNotTrainedError("test")) == "ModelNotTrainedError, test"
+    assert str(ModelNotTrainedError()) == "ModelNotTrainedError has been raised"
+
     trace2vec_gen_not_trained = TraceEmbeddingGenerator(log)
     act2vec_gen_not_trained = ActivityEmbeddingGenerator(log)
 
