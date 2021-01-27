@@ -11,51 +11,6 @@ from conformance_checking.embedding.generate_training_data import (
 import tensorflow as tf
 from collections import Counter
 
-"""
-This class is used to generate both activity and trace embeddings from an event log.
-@param      log: where the activities and traces for embedding generation come from
-            trace2vec_windows_size: window_size for trace2vec training
-            act2vec_windows_size: window_size for act2vec training
-            num_ns: number of negative samples for act2vec training
-            activity_auto_train: whether the training for activity embedding starts
-                            automatically when an instance of this class is created
-            trace_auto_train: whether the training for trace embedding starts
-                            automatically when an instance of this class is created
-"""
-
-
-class EmbeddingGenerator:
-    def __init__(
-        self,
-        log,
-        trace2vec_windows_size=3,
-        act2vec_windows_size=3,
-        num_ns=4,
-        activity_auto_train=False,
-        trace_auto_train=False,
-    ):
-        self.activity_embedding_generator = ActivityEmbeddingGenerator(
-            log, act2vec_windows_size, num_ns, activity_auto_train
-        )
-        self.trace_embedding_generator = TraceEmbeddingGenerator(
-            log, trace2vec_windows_size, trace_auto_train
-        )
-
-    # this function returns activity embedding
-    def get_activity_embedding(self, model_log, real_log):
-        return self.activity_embedding_generator.get_activity_embedding(
-            model_log, real_log
-        )
-
-    # this function returns trace embedding
-    def get_trace_embedding(self, model_log, real_log):
-        return self.trace_embedding_generator.get_trace_embedding(model_log, real_log)
-
-    # this function starts to train both activity and trace embedding models
-    def start_training(self):
-        self.activity_embedding_generator.start_training()
-        self.trace_embedding_generator.start_training()
-
 
 """
 This class is used to generate only activity embeddings from an event log.

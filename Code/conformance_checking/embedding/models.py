@@ -4,7 +4,6 @@ from tensorflow.keras.layers import (
     Dot,
     Embedding,
     Flatten,
-    Average,
     Concatenate,
 )
 
@@ -32,9 +31,6 @@ class Act2Vec(Model):
         dots = self.dots([ce, we])
         return self.flatten(dots)
 
-    def get_target_embedding(self):
-        return self.target_embedding
-
 
 class Trace2Vec(Model):
     def __init__(self, trace_vocab_size, act_vocab_size, embedding_dim, context_size):
@@ -46,7 +42,6 @@ class Trace2Vec(Model):
             trace_vocab_size, embedding_dim, input_length=1
         )
         self.concatenate = Concatenate(axis=1)
-        self.average = Average()
         self.flatten = Flatten()
         self.dense = Dense(act_vocab_size, activation="softmax")
 
@@ -57,8 +52,4 @@ class Trace2Vec(Model):
         trace_emb = self.trace_embedding(trace)
 
         concatenate = self.concatenate([act_emb, trace_emb])
-        # average = self.average([*concatenate])
         return self.dense(self.flatten(concatenate))
-
-    def get_trace_embedding(self):
-        return self.trace_embedding

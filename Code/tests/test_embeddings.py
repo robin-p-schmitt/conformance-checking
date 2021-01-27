@@ -69,7 +69,7 @@ def test_exceptions():
     with pytest.raises(
         ModelNotTrainedError, match="model for trace embeddings is not trained yet"
     ):
-        trace2vec_gen_not_trained.get_trace_embedding([], [])
+        trace2vec_gen_not_trained.evaluate_model()
 
     with pytest.raises(
         ModelNotTrainedError, match="model for trace embeddings is not trained yet"
