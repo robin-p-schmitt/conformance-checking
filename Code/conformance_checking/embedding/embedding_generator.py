@@ -305,9 +305,7 @@ class TraceEmbeddingGenerator:
         """
 
         if not self.trained:
-            raise ModelNotTrainedError(
-                "model for activity embeddings is not trained yet"
-            )
+            raise ModelNotTrainedError("model for trace embeddings is not trained yet")
 
         scores = self.trace2vec.evaluate(self.trace2vec_dataset)
 
@@ -340,6 +338,7 @@ class ModelNotTrainedError(Exception):
     """
     custom error class for ModelNotTrainedError
     """
+
     def __init__(self, *args):
         if args:
             self.message = args[0]
