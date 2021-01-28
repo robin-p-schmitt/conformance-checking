@@ -5,7 +5,7 @@ import numpy as np
 import pm4py
 
 
-def import_xes(path_to_log_file, key):
+def import_xes(path_to_log_file, key, limit=None):
     """Import an event log from a .xes file and return a List[List[str]],
     where the entry i,j is the j-th activity name of the i-th trace.
     :param path_to_log_file: a path to the log file to be imported
@@ -15,7 +15,7 @@ def import_xes(path_to_log_file, key):
     """
     event_log = pm4py.read_xes(path_to_log_file)
 
-    return [[event[key] for event in trace] for trace in event_log]
+    return [[event[key] for event in trace] for trace in event_log][:limit]
 
 
 def import_petri_net(path_to_model_file):
