@@ -139,10 +139,9 @@ class EmbeddingConformance(ABC):
                         dissimilarity_matrix[i, j] = dissimilarity
         return DissimilarityMatrix(dissimilarity_matrix)
 
-    @staticmethod
     @abstractmethod
     def _calc_embeddings(
-        model_traces: List[List[str]], real_traces: List[List[str]]
+        self, model_traces: List[List[str]], real_traces: List[List[str]]
     ) -> Tuple[List[Any], List[Any], Any]:
         """Calculates the embeddings of the traces.
 
@@ -153,10 +152,9 @@ class EmbeddingConformance(ABC):
         """
         pass  # pragma: no cover
 
-    @staticmethod
     @abstractmethod
     def _calc_dissimilarity(
-        model_embedding: Any, real_embedding: Any, context: Any
+        self, model_embedding: Any, real_embedding: Any, context: Any
     ) -> float:
         """Calculates the dissimilarity between two embeddings.
 

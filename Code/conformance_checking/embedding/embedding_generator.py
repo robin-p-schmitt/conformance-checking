@@ -11,51 +11,6 @@ from conformance_checking.embedding.generate_training_data import (
 import tensorflow as tf
 from collections import Counter
 
-"""
-This class is used to generate both activity and trace embeddings from an event log.
-@param      log: where the activities and traces for embedding generation come from
-            trace2vec_windows_size: window_size for trace2vec training
-            act2vec_windows_size: window_size for act2vec training
-            num_ns: number of negative samples for act2vec training
-            activity_auto_train: whether the training for activity embedding starts
-                            automatically when an instance of this class is created
-            trace_auto_train: whether the training for trace embedding starts
-                            automatically when an instance of this class is created
-"""
-
-
-class Embedding_generator:
-    def __init__(
-        self,
-        log,
-        trace2vec_windows_size=3,
-        act2vec_windows_size=3,
-        num_ns=4,
-        activity_auto_train=False,
-        trace_auto_train=False,
-    ):
-        self.activity_embedding_generator = Activity_Embedding_generator(
-            log, act2vec_windows_size, num_ns, activity_auto_train
-        )
-        self.trace_embedding_generator = Trace_Embedding_generator(
-            log, trace2vec_windows_size, trace_auto_train
-        )
-
-    # this function returns activity embedding
-    def get_activity_embedding(self, model_log, real_log):
-        return self.activity_embedding_generator.get_activity_embedding(
-            model_log, real_log
-        )
-
-    # this function returns trace embedding
-    def get_trace_embedding(self, model_log, real_log):
-        return self.trace_embedding_generator.get_trace_embedding(model_log, real_log)
-
-    # this function starts to train both activity and trace embedding models
-    def start_training(self):
-        self.activity_embedding_generator.start_training()
-        self.trace_embedding_generator.start_training()
-
 
 """
 This class is used to generate only activity embeddings from an event log.
@@ -67,13 +22,25 @@ This class is used to generate only activity embeddings from an event log.
 """
 
 
-class Activity_Embedding_generator:
-    def __init__(self, log, act2vec_windows_size=3, num_ns=4, auto_train=False):
+class ActivityEmbeddingGenerator:
+    def __init__(
+        self,
+        log,
+        act2vec_windows_size=2,
+        num_ns=2,
+        auto_train=False,
+        num_epochs=10,
+        batch_size=1024,
+        embedding_size=128,
+    ):
         # log is expected to be a data type of List[List[str]]
         self.log = log
 
         self.num_ns = num_ns
         self.act2vec_windows_size = act2vec_windows_size
+        self.num_epochs = num_epochs
+        self.batch_size = batch_size
+        self.embedding_size = embedding_size
         self.act2vec_training_data = {}
 
         if auto_train:
@@ -108,6 +75,9 @@ class Activity_Embedding_generator:
             self.act2vec_training_data["labels"],
             self.act_vocab,
             self.num_ns,
+            self.batch_size,
+            self.num_epochs,
+            self.embedding_size,
         )
 
     """
@@ -128,26 +98,51 @@ class Activity_Embedding_generator:
         vocab,
         num_ns,
         batch_size=1024,
-        buffer_size=10000,
+        num_epochs=10,
         embedding_dim=128,
+        buffer_size=10000,
     ):
         self.trained = True
 
-        dataset = tf.data.Dataset.from_tensor_slices(((targets, contexts), labels))
-        dataset = dataset.shuffle(buffer_size).batch(batch_size, drop_remainder=False)
+        self.act2vec_dataset = tf.data.Dataset.from_tensor_slices(
+            ((targets, contexts), labels)
+        )
+        self.act2vec_dataset = self.act2vec_dataset.shuffle(buffer_size).batch(
+            batch_size, drop_remainder=False
+        )
 
         vocab_size = len(vocab)
-        act2vec = Act2Vec(vocab_size, embedding_dim, num_ns)
-        act2vec.compile(
+        self.act2vec = Act2Vec(vocab_size, embedding_dim, num_ns)
+        self.act2vec.compile(
             optimizer="adam",
             loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
             metrics=["accuracy"],
         )
 
-        act2vec.fit(dataset, epochs=10)
+        self.act2vec.fit(self.act2vec_dataset, epochs=num_epochs, verbose=0)
 
         # we need to return embedding!!
-        return act2vec.layers[0].get_weights()[0]
+        return self.act2vec.layers[0].get_weights()[0]
+
+    def evaluate_model(self):
+        """Returns the accuracy of the trained act2vec model.
+
+        This function evaluates the act2vec model on the dataset that was used for
+        training. The training dataset is used because act2vec is an unsupervised
+        algorithm and therefore no heldout dataset is used for evaluation.
+
+        Returns:
+            score (float): accuracy score of the evaluation.
+
+        """
+        if not self.trained:
+            raise ModelNotTrainedError(
+                "model for activity embeddings is not trained yet"
+            )
+
+        scores = self.act2vec.evaluate(self.act2vec_dataset)
+
+        return scores[1]
 
     """
     this function returns an embedding matrix of activities
@@ -192,12 +187,23 @@ This class is used to generate only trace embeddings from an event log.
 """
 
 
-class Trace_Embedding_generator:
-    def __init__(self, log, trace2vec_windows_size=3, auto_train=False):
+class TraceEmbeddingGenerator:
+    def __init__(
+        self,
+        log,
+        trace2vec_windows_size=2,
+        auto_train=False,
+        num_epochs=10,
+        batch_size=1024,
+        embedding_size=128,
+    ):
         # log is expected to be a data type of List[List[str]]
         self.log = log
 
         self.trace2vec_windows_size = trace2vec_windows_size
+        self.num_epochs = num_epochs
+        self.batch_size = batch_size
+        self.embedding_size = embedding_size
         self.trace2vec_training_data = {}
 
         if auto_train:
@@ -233,6 +239,9 @@ class Trace_Embedding_generator:
             self.act_vocab,
             self.trace_vocab,
             self.trace2vec_windows_size,
+            self.batch_size,
+            self.num_epochs,
+            self.embedding_size,
         )
 
     """
@@ -256,26 +265,51 @@ class Trace_Embedding_generator:
         trace_vocab,
         window_size,
         batch_size=1024,
-        buffer_size=10000,
+        num_epochs=10,
         embedding_dim=128,
+        buffer_size=10000,
     ):
         self.trained = True
 
-        dataset = tf.data.Dataset.from_tensor_slices(((targets, contexts), labels))
-        dataset = dataset.shuffle(buffer_size).batch(batch_size, drop_remainder=False)
+        self.trace2vec_dataset = tf.data.Dataset.from_tensor_slices(
+            ((targets, contexts), labels)
+        )
+        self.trace2vec_dataset = self.trace2vec_dataset.shuffle(buffer_size).batch(
+            batch_size, drop_remainder=False
+        )
 
-        trace2vec = Trace2Vec(
+        self.trace2vec = Trace2Vec(
             len(trace_vocab), len(act_vocab), embedding_dim, window_size * 2
         )
-        trace2vec.compile(
+        self.trace2vec.compile(
             optimizer="adam",
             loss=tf.keras.losses.CategoricalCrossentropy(from_logits=False),
             metrics=["accuracy"],
         )
 
-        trace2vec.fit(dataset, epochs=10)
+        self.trace2vec.fit(self.trace2vec_dataset, epochs=num_epochs, verbose=0)
 
-        return trace2vec.layers[1].get_weights()[0]
+        return self.trace2vec.layers[1].get_weights()[0]
+
+    def evaluate_model(self):
+        """Returns the accuracy of the trained trace2vec model.
+
+        This function evaluates the trace2vec model on the dataset that
+        was used for training. The training dataset is used because trace2vec
+        is an unsupervised algorithm and therefore no heldout dataset is used
+        for evaluation.
+
+        Returns:
+            score (float): accuracy score of the evaluation.
+
+        """
+
+        if not self.trained:
+            raise ModelNotTrainedError("model for trace embeddings is not trained yet")
+
+        scores = self.trace2vec.evaluate(self.trace2vec_dataset)
+
+        return scores[1]
 
     """
     this function returns an embedding matrix of traces
@@ -300,12 +334,11 @@ class Trace_Embedding_generator:
             return model_emb, real_emb
 
 
-"""
-custom error class for ModelNotTrainedError
-"""
-
-
 class ModelNotTrainedError(Exception):
+    """
+    custom error class for ModelNotTrainedError
+    """
+
     def __init__(self, *args):
         if args:
             self.message = args[0]
@@ -314,6 +347,6 @@ class ModelNotTrainedError(Exception):
 
     def __str__(self):
         if self.message:
-            return "ModelNotTrainedError, {0} ".format(self.message)
+            return "ModelNotTrainedError, {0}".format(self.message)
         else:
             return "ModelNotTrainedError has been raised"
