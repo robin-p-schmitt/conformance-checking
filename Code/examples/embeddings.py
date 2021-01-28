@@ -12,7 +12,7 @@ if __name__ == "__main__":
     fileDir = os.path.dirname(absPath)
     code = os.path.dirname(fileDir)
     data = os.path.join(code, "data")
-    log = import_xes(os.path.join(data, "BPI_Challenge_2012.xes"))
+    log = import_xes(os.path.join(data, "BPI_Challenge_2012.xes"), "concept:name")
     log = log[:2000]
 
     """
