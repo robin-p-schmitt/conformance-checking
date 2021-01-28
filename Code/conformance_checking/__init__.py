@@ -5,16 +5,17 @@ import numpy as np
 import pm4py
 
 
-def import_xes(path_to_log_file):
+def import_xes(path_to_log_file, key):
     """Import an event log from a .xes file and return a List[List[str]],
     where the entry i,j is the j-th activity name of the i-th trace.
     :param path_to_log_file: a path to the log file to be imported
+    :param key: activity name key for the given xes file
     :return: List[List[str]],where the entry i,j is the
     j-th activity name of the i-th trace.
     """
     event_log = pm4py.read_xes(path_to_log_file)
 
-    return [[event["concept:name"] for event in trace] for trace in event_log]
+    return [[event[key] for event in trace] for trace in event_log]
 
 
 def import_petri_net(path_to_model_file):
@@ -27,13 +28,14 @@ def import_petri_net(path_to_model_file):
     return net, initial_marking, final_marking
 
 
-def generate_playout(net, initial_marking, final_marking):
+def generate_playout(net, initial_marking, final_marking, key):
     """Generate a playout given a petri net, initial_marking and final_marking
     and return a List[List[str]], where the entry i,j is the j-th activity
     name of the i-th trace.
     :param net: a petri net
     :param initial_marking: the initial marking of the petri net
     :param final_marking: the final marking of a petri net
+    :param key: activity name key for the given petri net
     :return: a List[List[str]], where the entry i,j is the j-th activity name
     of the i-th trace.
     """
@@ -42,7 +44,7 @@ def generate_playout(net, initial_marking, final_marking):
         net, initial_marking, final_marking=final_marking
     )
 
-    return [[event["concept:name"] for event in trace] for trace in playout_log]
+    return [[event[key] for event in trace] for trace in playout_log]
 
 
 class DissimilarityMatrix:

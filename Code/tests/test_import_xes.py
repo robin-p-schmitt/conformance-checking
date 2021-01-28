@@ -8,7 +8,7 @@ data = os.path.join(code, "data")
 
 
 def test_import_xes():
-    assert import_xes(os.path.join(data, "log_test.xes")) == [
+    assert import_xes(os.path.join(data, "log_test.xes"), "concept:name") == [
         ["register request", "examine casually", "check ticket"],
         ["register request", "decide"],
     ], str(data)

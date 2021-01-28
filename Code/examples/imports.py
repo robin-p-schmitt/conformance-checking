@@ -8,7 +8,7 @@ if __name__ == "__main__":
     data = os.path.join(code, "data")
 
     print("Running the import_xes() Method to import an event log...")
-    log_data = import_xes(os.path.join(data, "log_test.xes"))
+    log_data = import_xes(os.path.join(data, "log_test.xes"), "concept:name")
     print(
         """ The output of the method is a List[List[str]],
          where the entry i,j is the j-th activity name of the i-th trace."""
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     print(
         "Running the generate_playout() Method to generate a playout of the petri net..."
     )
-    playout = generate_playout(net, im, fm)
+    playout = generate_playout(net, im, fm, "concept:name")
     print(
         """The output of the method is a List[List[str]], where the entry i,j
         is the j-th activity name of the i-th trace."""
