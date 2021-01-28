@@ -1,2 +1,4 @@
 [run]
 branch = True
+omit =
+    conformance_checking/embedding/evaluate_hyperparameters.py
