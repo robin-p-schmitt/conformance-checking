@@ -1,11 +1,11 @@
 import numpy as np
+import pytest
 from conformance_checking import EmbeddingConformance
 
 
 def example():
     class Mock(EmbeddingConformance):
-        @staticmethod
-        def _calc_embeddings(model_traces, real_traces):
+        def _calc_embeddings(self, model_traces, real_traces):
             model_embeddings = np.asarray(
                 [len(t) for t in model_traces], dtype=np.float32
             )
@@ -14,8 +14,7 @@ def example():
             )
             return model_embeddings, real_embeddings, 1
 
-        @staticmethod
-        def _calc_dissimilarity(model_embedding, real_embedding, context):
+        def _calc_dissimilarity(self, model_embedding, real_embedding, context):
             assert context == 1
             max_len = max(model_embedding, real_embedding)
             min_len = min(model_embedding, real_embedding)
@@ -48,16 +47,11 @@ def example():
         ],
         dtype=np.float32,
     )
-    return Mock, model_traces, real_traces, expected_matrix
+    return Mock(), model_traces, real_traces, expected_matrix
 
 
 def check_algorithm(algorithm):
     _, model_traces, real_traces, _ = example()
-
-    # check inheritance
-    assert issubclass(
-        algorithm, EmbeddingConformance
-    ), "Algorithm must subclass EmbeddingConformance!"
 
     # check embeddings
     model_embeddings, real_embeddings, context = algorithm._calc_embeddings(
@@ -78,8 +72,8 @@ def check_algorithm(algorithm):
             )
             assert 0 <= dissimilarity <= 1, "Dissimilarity values should be in [0,1]!"
             if model_trace == real_trace:
-                assert (
-                    dissimilarity == 0
+                assert dissimilarity == pytest.approx(
+                    0, abs=1e-6
                 ), "Equal traces should have a dissimilarity of zero!"
 
 
@@ -90,7 +84,7 @@ def test_check_algorithm():
 
 def test_algorithm_execution():
     algorithm, model_traces, real_traces, expected_matrix = example()
-    result = algorithm().execute(model_traces, real_traces)
+    result = algorithm.execute(model_traces, real_traces)
     matrix = result.get_dissimilarity_matrix()
     assert isinstance(
         matrix, np.ndarray
