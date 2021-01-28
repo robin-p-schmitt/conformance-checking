@@ -24,7 +24,8 @@ class Act2Vec(Model):
         self.dots = Dot(axes=(3, 2))
         self.flatten = Flatten()
 
-    def call(self, pair):
+    # this method is traced by tensorflow, but not detected by coverage report
+    def call(self, pair):  # pragma: nocover
         target, context = pair
         we = self.target_embedding(target)
         ce = self.context_embedding(context)
@@ -45,7 +46,8 @@ class Trace2Vec(Model):
         self.flatten = Flatten()
         self.dense = Dense(act_vocab_size, activation="softmax")
 
-    def call(self, pair):
+    # this method is traced by tensorflow, but not detected by coverage report
+    def call(self, pair):  # pragma: nocover
         trace, act_context = pair
 
         act_emb = self.act_embedding(act_context)
