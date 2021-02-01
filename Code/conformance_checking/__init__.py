@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple, Any
+from conformance_checking.distances import calc_d
 
 import numpy as np
 import pm4py
@@ -126,6 +127,13 @@ class EmbeddingConformance(ABC):
         model_embeddings, real_embeddings, context = self._calc_embeddings(
             model_deduplicated, real_deduplicated
         )
+
+        if context is not None:
+            # algorithm of act2vec: need to calc d
+            vocab_len = len(context)
+            model_embeddings = calc_d(model_embeddings, vocab_len)
+            real_embeddings = calc_d(real_embeddings, vocab_len)
+
         dissimilarity_matrix = np.zeros(
             (len(model_traces), len(real_traces)), dtype=np.float32
         )

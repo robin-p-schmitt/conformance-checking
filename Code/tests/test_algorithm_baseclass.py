@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 from conformance_checking import EmbeddingConformance
+from conformance_checking.distances import calc_d
 
 
 def example():
@@ -65,8 +66,13 @@ def check_algorithm(algorithm):
     ), "There must be as many real embeddings as real traces!"
 
     # check dissimilarity function
+    if context is not None:
+        # algorithm of act2vec: need to calc d
+        vocab_len = len(context)
+        model_embeddings = calc_d(model_embeddings, vocab_len)
+        real_embeddings = calc_d(real_embeddings, vocab_len)
     for model_trace, model_embedding in zip(model_traces, model_embeddings):
-        for real_trace, real_embedding in zip(model_traces, model_embeddings):
+        for real_trace, real_embedding in zip(real_traces, real_embeddings):
             dissimilarity = algorithm._calc_dissimilarity(
                 model_embedding, real_embedding, context
             )
