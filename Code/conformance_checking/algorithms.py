@@ -1,5 +1,5 @@
 from conformance_checking.__init__ import EmbeddingConformance
-from conformance_checking.distances import calc_wmd, calc_ict, calc_euclidean
+from conformance_checking.distances import calc_wmd, calc_ict, calc_euclidean, calc_d
 from conformance_checking.embedding.embedding_generator import (
     ActivityEmbeddingGenerator,
     TraceEmbeddingGenerator,
@@ -61,6 +61,8 @@ class Act2VecWmdConformance(EmbeddingConformance):
             model_traces, real_traces
         )
         dist_matrix = calc_euclidean(context)
+        model_embedding = calc_d(model_embedding, len(dist_matrix))
+        real_embedding = calc_d(real_embedding, len(dist_matrix))
 
         # return frequency tables for the model log and the real log
         # and an embedding lookup table
@@ -139,6 +141,8 @@ class Act2VecIctConformance(EmbeddingConformance):
             model_traces, real_traces
         )
         dist_matrix = calc_euclidean(context)
+        model_embedding = calc_d(model_embedding, len(dist_matrix))
+        real_embedding = calc_d(real_embedding, len(dist_matrix))
 
         return model_embedding, real_embedding, dist_matrix
 

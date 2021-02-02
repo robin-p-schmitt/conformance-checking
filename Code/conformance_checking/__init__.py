@@ -128,12 +128,6 @@ class EmbeddingConformance(ABC):
             model_deduplicated, real_deduplicated
         )
 
-        if context is not None:
-            # algorithm of act2vec: need to calc d
-            vocab_len = len(context)
-            model_embeddings = calc_d(model_embeddings, vocab_len)
-            real_embeddings = calc_d(real_embeddings, vocab_len)
-
         dissimilarity_matrix = np.zeros(
             (len(model_traces), len(real_traces)), dtype=np.float32
         )
