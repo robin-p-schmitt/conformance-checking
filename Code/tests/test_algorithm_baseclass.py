@@ -64,9 +64,8 @@ def check_algorithm(algorithm):
         real_traces
     ), "There must be as many real embeddings as real traces!"
 
-    # check dissimilarity function
     for model_trace, model_embedding in zip(model_traces, model_embeddings):
-        for real_trace, real_embedding in zip(model_traces, model_embeddings):
+        for real_trace, real_embedding in zip(real_traces, real_embeddings):
             dissimilarity = algorithm._calc_dissimilarity(
                 model_embedding, real_embedding, context
             )

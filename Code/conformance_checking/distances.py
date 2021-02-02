@@ -1,60 +1,80 @@
 from pyemd import emd
 import numpy as np
-from typing import Dict
+from typing import Dict, List
 
 
-def _handle_empty_traces(model_embedding, real_embedding):
-    if len(model_embedding) == len(real_embedding) == 0:
-        return 0
+def _handle_empty_traces(d_model, d_real):
+    if (True in np.isnan(d_model)) and (True in np.isnan(d_real)):
+        return 0.0
     else:
-        return 1
+        return 1.0
 
 
-def calc_wmd(
-    model_embedding: Dict[int, int], real_embedding: Dict[int, int], context: np.ndarray
-) -> float:
-    """calculates WMD between two embeddings.
+def calc_euclidean(context: np.ndarray) -> np.ndarray:
+    """calculates Euclidean distances between activities in logs.
 
-    :param model_embedding: The first integer is the index of an activity,
-        the second integer is the times that the activity shows in the trace
-    :param real_embedding: The first integer is the index of an activity,
-        the second integer is the times that the activity shows in the trace
     :param context: should be np.ndarray with dimension m x n,
         where n is the dimension of embedding, m is number of embeddings,
         context[i] is the embeddings of activity with index i
-    :return: the dissimilarity of two traces as a floating-point value
+    :return: the dissimilarity matrix for every two activities in logs.
     """
 
-    if len(model_embedding) == 0 or len(real_embedding) == 0:
-        return _handle_empty_traces(model_embedding, real_embedding)
+    act_num = len(context)
+    distance_matrix = np.zeros((act_num, act_num), dtype=np.double)
 
-    vocab_len = len(context)
-
-    # function: calculate normalized count of activity i within its trace
-    def calc_d(embeddings: dict):
-        d = np.zeros(vocab_len, dtype=np.double)
-        # calculate the length of trace
-        trace_len = 0
-        for value in embeddings.values():
-            trace_len += value
-
-        for i in range(vocab_len):
-            count = embeddings.get(i, 0)
-            d[i] = count / trace_len
-        return d
-
-    d_model = calc_d(model_embedding)
-    d_real = calc_d(real_embedding)
-
-    # calculate Euclidean distance between embeddings word i and word j
-    distance_matrix = np.zeros((vocab_len, vocab_len), dtype=np.double)
-    for i in range(vocab_len):
-        for j in range(vocab_len):
+    for i in range(act_num):
+        for j in range(act_num):
             if distance_matrix[i, j] != 0.0:
                 continue
             distance_matrix[i, j] = distance_matrix[j, i] = np.sqrt(
                 np.sum((context[i] - context[j]) ** 2)
             )
+
+    return distance_matrix
+
+
+def calc_d(embeddings: List[Dict[int, int]], vocab_len: int) -> np.ndarray:
+    """calculates d for a trace
+
+    :param embeddings: Keys of dict is the index of an activity,
+        values of dict is the times that the activity shows in the trace
+    :param vocab_len: number of activities
+    :return: d of the input trace
+    """
+
+    d = np.zeros((len(embeddings), vocab_len), dtype=np.double)
+
+    for i, embedding in enumerate(embeddings):
+        # calculate the length of trace
+        trace_len = 0
+        for value in embedding.values():
+            trace_len += value
+
+        if trace_len == 0:
+            # for empty trace, we set d as np.nan
+            d[i] = np.nan
+        else:
+            for j in range(vocab_len):
+                count = embedding.get(j, 0)
+                d[i, j] = count / trace_len
+
+    return d
+
+
+def calc_wmd(
+    d_model: np.ndarray, d_real: np.ndarray, distance_matrix: np.ndarray
+) -> float:
+    """calculates WMD between two embeddings.
+
+    :param d_model: d of a model trace
+    :param d_real: d of a real trace
+    :param distance_matrix: a distance matrix for Euclidean distances of
+        every two actives in all traces
+    :return: the dissimilarity of two traces as a floating-point value
+    """
+
+    if (True in np.isnan(d_model)) or (True in np.isnan(d_real)):
+        return _handle_empty_traces(d_model, d_real)
 
     dist = emd(d_model, d_real, distance_matrix)
 
@@ -99,53 +119,22 @@ def ACT(p, q, C, k):
 
 
 def calc_ict(
-    model_embedding: Dict[int, int],
-    real_embedding: Dict[int, int],
-    context: np.ndarray,
+    d_model: np.ndarray,
+    d_real: np.ndarray,
+    distance_matrix: np.ndarray,
     k: int = 3,
 ) -> float:
     """calculates ICT between two embeddings.
 
-    :param model_embedding: The first integer is the index of an activity,
-        the second integer is the times that the activity shows in the trace
-    :param real_embedding: The first integer is the index of an activity,
-        the second integer is the times that the activity shows in the trace
-    :param context: should be np.ndarray with dimension m x n,
-        where n is the dimension of embedding, m is number of embeddings,
-        context[i] is the embeddings of activity with index i
+    :param d_model: d of a model trace
+    :param d_real: d of a real trace
+    :param distance_matrix: a distance matrix for Euclidean distances of
+        every two actives in all traces
     :return: the dissimilarity of two traces as a floating-point value
     """
 
-    if len(model_embedding) == 0 or len(real_embedding) == 0:
-        return _handle_empty_traces(model_embedding, real_embedding)
-
-    vocab_len = len(context)
-
-    # function: calculate normalized count of activity i within its trace
-    def calc_d(embeddings: dict):
-        d = np.zeros(vocab_len, dtype=np.double)
-        # calculate the length of trace
-        trace_len = 0
-        for value in embeddings.values():
-            trace_len += value
-
-        for i in range(vocab_len):
-            count = embeddings.get(i, 0)
-            d[i] = count / trace_len
-        return d
-
-    d_model = calc_d(model_embedding)
-    d_real = calc_d(real_embedding)
-
-    # calculate Euclidean distance between embeddings word i and word j
-    distance_matrix = np.zeros((vocab_len, vocab_len), dtype=np.double)
-    for i in range(vocab_len):
-        for j in range(vocab_len):
-            if distance_matrix[i, j] != 0.0:
-                continue
-            distance_matrix[i, j] = distance_matrix[j, i] = np.sqrt(
-                np.sum((context[i] - context[j]) ** 2)
-            )
+    if (True in np.isnan(d_model)) or (True in np.isnan(d_real)):
+        return _handle_empty_traces(d_model, d_real)
 
     dist = ACT(d_model, d_real, distance_matrix, k)
 

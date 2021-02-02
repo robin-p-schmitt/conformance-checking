@@ -1,11 +1,11 @@
 from conformance_checking.__init__ import EmbeddingConformance
-from conformance_checking.distances import calc_wmd, calc_ict
+from conformance_checking.distances import calc_wmd, calc_ict, calc_euclidean, calc_d
 from conformance_checking.embedding.embedding_generator import (
     ActivityEmbeddingGenerator,
     TraceEmbeddingGenerator,
 )
 import numpy as np
-from typing import Dict, Tuple, List, Any
+from typing import Tuple, List, Any
 
 
 class Act2VecWmdConformance(EmbeddingConformance):
@@ -33,14 +33,15 @@ class Act2VecWmdConformance(EmbeddingConformance):
 
     def _calc_embeddings(
         self, model_traces: List[List[str]], real_traces: List[List[str]]
-    ) -> Tuple[List[Any], List[Any], Any]:
+    ) -> Tuple[np.ndarray, np.ndarray, Any]:
         """Calculates the embeddings of the traces.
 
         :param model_traces: The traces coming from the model.
         :param real_traces: The traces coming from the real log.
         :return: Dicts for the model and real log contains
             index of activities and its frequencies
-            and an implementation-specific context object.
+            and a distance matrix for Euclidean distances of
+            every two actives in all traces.
         """
 
         emb_gen = ActivityEmbeddingGenerator(
@@ -56,29 +57,30 @@ class Act2VecWmdConformance(EmbeddingConformance):
         # start to train the models
         emb_gen.start_training()
 
+        model_embedding, real_embedding, context = emb_gen.get_activity_embedding(
+            model_traces, real_traces
+        )
+        dist_matrix = calc_euclidean(context)
+        model_embedding = calc_d(model_embedding, len(dist_matrix))
+        real_embedding = calc_d(real_embedding, len(dist_matrix))
+
         # return frequency tables for the model log and the real log
         # and an embedding lookup table
-        return emb_gen.get_activity_embedding(model_traces, real_traces)
+        return model_embedding, real_embedding, dist_matrix
 
     def _calc_dissimilarity(
-        self,
-        model_embedding: Dict[int, int],
-        real_embedding: Dict[int, int],
-        context: np.ndarray,
+        self, d_model: np.ndarray, d_real: np.ndarray, distance_matrix: np.ndarray
     ) -> float:
         """calculates WMD between two embeddings.
 
-        :param model_embedding: The first integer is the index of an activity,
-            the second integer is the times that the activity shows in the trace
-        :param real_embedding: The first integer is the index of an activity,
-            the second integer is the times that the activity shows in the trace
-        :param context: should be np.ndarray with dimension m x n,
-            where n is the dimension of embedding, m is number of embeddings,
-            context[i] is the embeddings of activity with index i
+        :param d_model: d of a model trace
+        :param d_real: d of a real trace
+        :param distance_matrix: a distance matrix for Euclidean distances of
+            every two actives in all traces
         :return: the dissimilarity of two traces as a floating-point value
         """
 
-        return calc_wmd(model_embedding, real_embedding, context)
+        return calc_wmd(d_model, d_real, distance_matrix)
 
 
 class Act2VecIctConformance(EmbeddingConformance):
@@ -109,14 +111,15 @@ class Act2VecIctConformance(EmbeddingConformance):
 
     def _calc_embeddings(
         self, model_traces: List[List[str]], real_traces: List[List[str]]
-    ) -> Tuple[List[Any], List[Any], Any]:
+    ) -> Tuple[np.ndarray, np.ndarray, Any]:
         """Calculates the embeddings of the traces.
 
         :param model_traces: The traces coming from the model.
         :param real_traces: The traces coming from the real log.
         :return: Dicts for the model and real log contains
             index of activities and its frequencies
-            and an implementation-specific context object.
+            and a distance matrix for Euclidean distances of
+            every two actives in all traces.
         """
 
         emb_gen = ActivityEmbeddingGenerator(
@@ -137,29 +140,25 @@ class Act2VecIctConformance(EmbeddingConformance):
         model_embedding, real_embedding, context = emb_gen.get_activity_embedding(
             model_traces, real_traces
         )
+        dist_matrix = calc_euclidean(context)
+        model_embedding = calc_d(model_embedding, len(dist_matrix))
+        real_embedding = calc_d(real_embedding, len(dist_matrix))
 
-        return model_embedding, real_embedding, context
+        return model_embedding, real_embedding, dist_matrix
 
     def _calc_dissimilarity(
-        self,
-        model_embedding: Dict[int, int],
-        real_embedding: Dict[int, int],
-        context: np.ndarray,
+        self, d_model: np.ndarray, d_real: np.ndarray, distance_matrix: np.ndarray
     ) -> float:
         """calculates ICT between two embeddings.
 
-        :param model_embedding: The first integer is the index of an activity,
-            the second integer is the times that the activity shows in the trace
-        :param real_embedding: The first integer is the index of an activity,
-            the second integer is the times that the activity shows in the trace
-        :param context: should be np.ndarray with dimension m x n,
-            where n is the dimension of embedding, m is number of embeddings,
-            context[i] is the embeddings of activity with index i
-        :param k: number of edges considered per activity, default=3
+        :param d_model: d of a model trace
+        :param d_real: d of a real trace
+        :param distance_matrix: a distance matrix for Euclidean distances of
+            every two actives in all traces
         :return: the dissimilarity of two traces as a floating-point value
         """
 
-        return calc_ict(model_embedding, real_embedding, context, k=self.k)
+        return calc_ict(d_model, d_real, distance_matrix, k=self.k)
 
 
 class Trace2VecCosineConformance(EmbeddingConformance):
