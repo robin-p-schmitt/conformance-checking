@@ -1,7 +1,6 @@
 import numpy as np
 import pytest
 from conformance_checking import EmbeddingConformance
-from conformance_checking.distances import calc_d
 
 
 def example():

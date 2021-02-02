@@ -33,7 +33,7 @@ class Act2VecWmdConformance(EmbeddingConformance):
 
     def _calc_embeddings(
         self, model_traces: List[List[str]], real_traces: List[List[str]]
-    ) -> Tuple[List[Any], List[Any], Any]:
+    ) -> Tuple[np.ndarray, np.ndarray, Any]:
         """Calculates the embeddings of the traces.
 
         :param model_traces: The traces coming from the model.
@@ -111,7 +111,7 @@ class Act2VecIctConformance(EmbeddingConformance):
 
     def _calc_embeddings(
         self, model_traces: List[List[str]], real_traces: List[List[str]]
-    ) -> Tuple[List[Any], List[Any], Any]:
+    ) -> Tuple[np.ndarray, np.ndarray, Any]:
         """Calculates the embeddings of the traces.
 
         :param model_traces: The traces coming from the model.

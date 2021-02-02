@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Tuple, Any
-from conformance_checking.distances import calc_d
+from typing import List, Tuple, Any, Union
 
 import numpy as np
 import pm4py
@@ -144,7 +143,7 @@ class EmbeddingConformance(ABC):
     @abstractmethod
     def _calc_embeddings(
         self, model_traces: List[List[str]], real_traces: List[List[str]]
-    ) -> Tuple[List[Any], List[Any], Any]:
+    ) -> Tuple[Union[np.ndarray, List[Any]], Union[np.ndarray, List[Any]], Any]:
         """Calculates the embeddings of the traces.
 
         :param model_traces: The traces coming from the model.

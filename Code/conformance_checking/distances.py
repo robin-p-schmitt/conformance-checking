@@ -1,6 +1,6 @@
 from pyemd import emd
 import numpy as np
-from typing import Dict, List, Any
+from typing import Dict, List
 
 
 def _handle_empty_traces(d_model, d_real):
