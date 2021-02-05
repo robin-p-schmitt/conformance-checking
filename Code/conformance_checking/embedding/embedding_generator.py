@@ -11,6 +11,7 @@ from conformance_checking.embedding.generate_training_data import (
 import tensorflow as tf
 from collections import Counter
 
+
 class ActivityEmbeddingGenerator:
     """
     This class is used to generate only activity embeddings from an event log.
@@ -19,28 +20,31 @@ class ActivityEmbeddingGenerator:
     @param      act2vec_windows_size: window_size for act2vec training
     @param      num_ns: number of negative samples for act2vec training
     @param      auto_train: whether the training for activity embedding
-                            starts automatically when an instance of this class is created
+                            starts automatically when an instance of this
+                            class is created
     @param      num_epochs: the number of iterations through the whole dataset when
                             training the embedding model
     @param      batch_size: the size of the batches used for gradient descent while
                             training the embedding model
-    @param      embedding_size: the size of the embeddings that activities are represented as
+    @param      embedding_size: the size of the embeddings that activities
+                                are represented as
     @param      training_verbose: the amount of output during model training:
                                     0: no output
                                     1: progress bar per epoch
                                     2: one line per epoch + loss and accuracy
                                     3: one line per epoch
     """
+
     def __init__(
         self,
         log,
-        act2vec_windows_size=2,
-        num_ns=2,
+        act2vec_windows_size=3,
+        num_ns=5,
         auto_train=False,
-        num_epochs=10,
+        num_epochs=100,
         batch_size=1024,
-        embedding_size=128,
-        training_verbose = 1,
+        embedding_size=16,
+        training_verbose=1,
     ):
         # log is expected to be a data type of List[List[str]]
         self.log = log
@@ -91,7 +95,7 @@ class ActivityEmbeddingGenerator:
             self.batch_size,
             self.num_epochs,
             self.embedding_size,
-            verbose = self.training_verbose
+            verbose=self.training_verbose,
         )
 
     """
@@ -115,7 +119,7 @@ class ActivityEmbeddingGenerator:
         num_epochs=10,
         embedding_dim=128,
         buffer_size=10000,
-        verbose = 1,
+        verbose=1,
     ):
         self.trained = True
 
@@ -192,6 +196,7 @@ class ActivityEmbeddingGenerator:
 
             return model_frequency, real_frequency, self.activity_embedding
 
+
 class TraceEmbeddingGenerator:
     """
     This class is used to generate only trace embeddings from an event log.
@@ -204,22 +209,24 @@ class TraceEmbeddingGenerator:
                             training the embedding model
     @param      batch_size: the size of the batches used for gradient descent while
                             training the embedding model
-    @param      embedding_size: the size of the embeddings that activities are represented as
+    @param      embedding_size: the size of the embeddings that activities
+                                are represented as
     @param      training_verbose: the amount of output during model training:
                                     0: no output
                                     1: progress bar per epoch
                                     2: one line per epoch + loss and accuracy
                                     3: one line per epoch
     """
+
     def __init__(
         self,
         log,
-        trace2vec_windows_size=2,
+        trace2vec_windows_size=3,
         auto_train=False,
-        num_epochs=10,
+        num_epochs=300,
         batch_size=1024,
-        embedding_size=128,
-        training_verbose = 1
+        embedding_size=16,
+        training_verbose=1,
     ):
         # log is expected to be a data type of List[List[str]]
         self.log = log
@@ -270,7 +277,7 @@ class TraceEmbeddingGenerator:
             self.batch_size,
             self.num_epochs,
             self.embedding_size,
-            verbose = self.training_verbose
+            verbose=self.training_verbose,
         )
 
     """
@@ -297,7 +304,7 @@ class TraceEmbeddingGenerator:
         num_epochs=10,
         embedding_dim=128,
         buffer_size=10000,
-        verbose = 1
+        verbose=1,
     ):
         self.trained = True
 
