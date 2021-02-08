@@ -13,6 +13,7 @@ from conformance_checking.embedding.generate_training_data import (
 )
 
 import tensorflow as tf
+import numpy as np
 from collections import Counter
 
 
@@ -164,13 +165,15 @@ class ActivityEmbeddingGenerator:
 
         return scores[1]
 
-    def get_activity_embedding(self, model_log, real_log):
+    def get_activity_embedding(self, model_log, real_log, norm=False):
         """This function returns the embeddings for the activities.
 
         :param model_log: The model log of traces.
         :type model_log: List[List[str]]
         :param real_log: The real log of traces.
         :type real_log: List[List[str]]
+        :param norm: Wether to normalize embeddings to length 0.5
+        :type norm: bool
 
         :return: The activity frequencies per trace in both model and real log and
            the embedding matrix.
@@ -202,7 +205,13 @@ class ActivityEmbeddingGenerator:
                     c.update([act])
                 real_frequency.append(c)
 
-            return model_frequency, real_frequency, self.activity_embedding
+            embeddings = self.activity_embedding
+            if norm:
+                # normalize each embedding to have length 0.5
+                norms = np.linalg.norm(embeddings, axis=1)
+                embeddings = embeddings / (2 * norms[:, None])
+
+            return model_frequency, real_frequency, embeddings
 
 
 class TraceEmbeddingGenerator:
@@ -352,13 +361,15 @@ class TraceEmbeddingGenerator:
 
         return scores[1]
 
-    def get_trace_embedding(self, model_log, real_log):
+    def get_trace_embedding(self, model_log, real_log, norm=False):
         """This function returns the embeddings for the traces.
 
         :param model_log: The model log of traces.
         :type model_log: List[List[str]]
         :param real_log: The real log of traces.
         :type real_log: List[List[str]]
+        :param norm: Wether to normalize embeddings to length 0.5
+        :type norm: bool
 
         :return: The embeddings of the traces in the model and real log.
         :rtype: Tuple[np.ndarray, np.ndarray]
@@ -375,8 +386,14 @@ class TraceEmbeddingGenerator:
                 for trace in real_log
             ]
 
-            model_emb = self.trace_embedding[model_indices]
-            real_emb = self.trace_embedding[real_indices]
+            embeddings = self.trace_embedding
+            if norm:
+                # normalize each embedding to have length 0.5
+                norms = np.linalg.norm(embeddings, axis=1)
+                embeddings = embeddings / (2 * norms[:, None])
+
+            model_emb = embeddings[model_indices]
+            real_emb = embeddings[real_indices]
 
             return model_emb, real_emb
 

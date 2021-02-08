@@ -3,6 +3,7 @@ from typing import List, Tuple, Any, Union
 
 import numpy as np
 import pm4py
+from pm4py.objects.log.importer.xes import importer as xes_importer
 
 
 def import_xes(path_to_log_file: str, key: str, limit=None) -> List[List[str]]:
@@ -18,9 +19,13 @@ def import_xes(path_to_log_file: str, key: str, limit=None) -> List[List[str]]:
     :return: List[List[str]], where the entry i,j is the j-th activity name of
         the i-th trace.
     """
-    event_log = pm4py.read_xes(path_to_log_file)
+    variant = xes_importer.Variants.ITERPARSE
+    parameters = {variant.value.Parameters.MAX_TRACES: limit} if limit else {}
+    event_log = xes_importer.apply(
+        path_to_log_file, variant=variant, parameters=parameters
+    )
 
-    return [[event[key] for event in trace] for trace in event_log][:limit]
+    return [[event[key] for event in trace] for trace in event_log]
 
 
 def import_petri_net(path_to_model_file: str):

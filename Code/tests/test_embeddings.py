@@ -35,9 +35,11 @@ def test_embeddings_generator():
 
     # assert type and shape of trace embeddings
     test_log = log[:5]
-    trace_embeddings, _ = trace2vec_gen_trained.get_trace_embedding(test_log, test_log)
+    trace_embeddings, _ = trace2vec_gen_trained.get_trace_embedding(
+        test_log, test_log, True
+    )
     _, _, act_embeddings = act2vec_gen_trained.get_activity_embedding(
-        test_log, test_log
+        test_log, test_log, True
     )
 
     assert (
@@ -53,6 +55,11 @@ def test_embeddings_generator():
             )
         )
     )
+
+    for emb in trace_embeddings:
+        assert np.linalg.norm(emb) == pytest.approx(0.5)
+    for emb in act_embeddings:
+        assert np.linalg.norm(emb) == pytest.approx(0.5)
 
 
 def test_exceptions():
