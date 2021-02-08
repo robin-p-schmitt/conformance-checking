@@ -1,5 +1,5 @@
 from conformance_checking.__init__ import EmbeddingConformance
-from conformance_checking.distances import calc_wmd, calc_ict, calc_euclidean, calc_d
+from conformance_checking.distances import calc_wmd, calc_ict, calc_euclidean, _calc_d
 from conformance_checking.embedding.embedding_generator import (
     ActivityEmbeddingGenerator,
     TraceEmbeddingGenerator,
@@ -9,11 +9,16 @@ from typing import Tuple, List, Any
 
 
 class Act2VecWmdConformance(EmbeddingConformance):
-    """
-    Inherit from EmbeddingConformance.
-    Implement abstract methods _calc_embeddings and _calc_dissimilarity.
-    Based on act2vec.
-    Dissimilarity can be calculated using WMD.
+    """Implements :py:class:`conformance_checking.EmbeddingConformance` using act2vec
+    and WMD.
+
+    First, the activities are extracted from the traces and an act2vec embedding is
+    calculated. Second, every trace gets replaced by the normalized count of activities.
+    Third, the final distance is calculated using word mover distance by using the
+    euclidean distances between activities.
+
+    The embedding format are the d values from the original paper and the context object
+    is a distance matrix between all pairs of activities.
     """
 
     def __init__(
@@ -61,8 +66,8 @@ class Act2VecWmdConformance(EmbeddingConformance):
             model_traces, real_traces
         )
         dist_matrix = calc_euclidean(context)
-        model_embedding = calc_d(model_embedding, len(dist_matrix))
-        real_embedding = calc_d(real_embedding, len(dist_matrix))
+        model_embedding = _calc_d(model_embedding, len(dist_matrix))
+        real_embedding = _calc_d(real_embedding, len(dist_matrix))
 
         # return frequency tables for the model log and the real log
         # and an embedding lookup table
@@ -84,12 +89,19 @@ class Act2VecWmdConformance(EmbeddingConformance):
 
 
 class Act2VecIctConformance(EmbeddingConformance):
-    """
-    Inherit from EmbeddingConformance.
-    Implement abstract methods _calc_embeddings and _calc_dissimilarity.
-    Based on act2vec.
-    Dissimilarity can be calculated using ICT.
-    :param k: number of edges considered per activity, default=3
+    """Implements :py:class:`conformance_checking.EmbeddingConformance` using act2vec
+    and ICT.
+
+    First, the activities are extracted from the traces and an act2vec embedding is
+    calculated. Second, every trace gets replaced by the normalized count of activities.
+    Third, the final distance is calculated using iterative constrained transfers by
+    using the euclidean distances between activities.
+
+    .. note:: This method should be faster than :py:class:`Act2VecWmdConformance`
+        while being slightly less accurate.
+
+    The embedding format are the d values from the original paper and the context object
+    is a distance matrix between all pairs of activities.
     """
 
     def __init__(
@@ -141,8 +153,8 @@ class Act2VecIctConformance(EmbeddingConformance):
             model_traces, real_traces
         )
         dist_matrix = calc_euclidean(context)
-        model_embedding = calc_d(model_embedding, len(dist_matrix))
-        real_embedding = calc_d(real_embedding, len(dist_matrix))
+        model_embedding = _calc_d(model_embedding, len(dist_matrix))
+        real_embedding = _calc_d(real_embedding, len(dist_matrix))
 
         return model_embedding, real_embedding, dist_matrix
 
@@ -162,11 +174,16 @@ class Act2VecIctConformance(EmbeddingConformance):
 
 
 class Trace2VecCosineConformance(EmbeddingConformance):
-    """
-    Inherit from EmbeddingConformance.
-    Implement abstrackt methods _calc_embeddings and _calc_dissimilarity.
-    Based on trace2vec.
-    Dissimilarity can be calculated using cosine distance.
+    """Implements :py:class:`conformance_checking.EmbeddingConformance` using trace2vec
+    and cosine distances.
+
+    First, the traces are embedded using trace2vec. Second, the distance between every
+    two traces is calculated by taking the cosine distance between their embeddings.
+
+    .. note:: This method should is fastest, but produces different results than the
+        act2vec methods.
+
+    The embedding format are embedding vectors. There is no context object.
     """
 
     def __init__(

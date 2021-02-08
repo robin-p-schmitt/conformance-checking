@@ -1,3 +1,7 @@
+"""
+.. warning:: This module is mainly designed for internal use.
+"""
+
 from pyemd import emd
 import numpy as np
 from typing import Dict, List
@@ -11,11 +15,12 @@ def _handle_empty_traces(d_model, d_real):
 
 
 def calc_euclidean(context: np.ndarray) -> np.ndarray:
-    """calculates Euclidean distances between activities in logs.
+    """Calculates the euclidean distances between activities in logs.
 
-    :param context: should be np.ndarray with dimension m x n,
-        where n is the dimension of embedding, m is number of embeddings,
-        context[i] is the embeddings of activity with index i
+    :param context: Should be an array with shape m x n,
+        where n is the dimension of the embeddings, m is the number of embeddings.
+        The entry i is the embeddings of the activity with index i.
+    :type context: np.ndarray
     :return: the dissimilarity matrix for every two activities in logs.
     """
 
@@ -33,13 +38,15 @@ def calc_euclidean(context: np.ndarray) -> np.ndarray:
     return distance_matrix
 
 
-def calc_d(embeddings: List[Dict[int, int]], vocab_len: int) -> np.ndarray:
-    """calculates d for a trace
+def _calc_d(embeddings: List[Dict[int, int]], vocab_len: int) -> np.ndarray:
+    """Calculates d for a trace.
 
     :param embeddings: Keys of dict is the index of an activity,
         values of dict is the times that the activity shows in the trace
-    :param vocab_len: number of activities
-    :return: d of the input trace
+    :type embeddings: List[Dict[int, int]]
+    :param vocab_len: Number of activities
+    :type vocab_len: int
+    :return: Value d of the input trace
     """
 
     d = np.zeros((len(embeddings), vocab_len), dtype=np.double)
@@ -64,13 +71,16 @@ def calc_d(embeddings: List[Dict[int, int]], vocab_len: int) -> np.ndarray:
 def calc_wmd(
     d_model: np.ndarray, d_real: np.ndarray, distance_matrix: np.ndarray
 ) -> float:
-    """calculates WMD between two embeddings.
+    """Calculates the word mover distance (WMD) between two embeddings.
 
-    :param d_model: d of a model trace
-    :param d_real: d of a real trace
-    :param distance_matrix: a distance matrix for Euclidean distances of
+    :param d_model: Value d of a model trace
+    :type d_model: np.ndarray
+    :param d_real: Value d of a real trace
+    :type d_real: np.ndarray
+    :param distance_matrix: A distance matrix for Euclidean distances of
         every two actives in all traces
-    :return: the dissimilarity of two traces as a floating-point value
+    :type distance_matrix: np.ndarray
+    :return: The dissimilarity of two traces as a floating-point value
     """
 
     if (True in np.isnan(d_model)) or (True in np.isnan(d_real)):
@@ -81,11 +91,11 @@ def calc_wmd(
     return dist
 
 
-def ACT(p, q, C, k):
-    """calculates ACT between two embeddings.
+def _act(p, q, C, k):
+    """Calculates the Approximate computation of ICT (ACT) between two embeddings.
 
-    :param p: a np.array contains normalized count of activity within a trace
-    :param q: a np.array contains normalized count of activity within a trace
+    :param p: a np.ndarray contains normalized count of activity within a trace
+    :param q: a np.ndarray contains normalized count of activity within a trace
     :param C: dissimilar matrix of these two traces
     :param k: number of edges considered per activity
     :return: a floating-point value
@@ -124,18 +134,23 @@ def calc_ict(
     distance_matrix: np.ndarray,
     k: int = 3,
 ) -> float:
-    """calculates ICT between two embeddings.
+    """Calculates the iterative constrained transfers (ICT) between two embeddings.
 
-    :param d_model: d of a model trace
-    :param d_real: d of a real trace
-    :param distance_matrix: a distance matrix for Euclidean distances of
+    The ICT value is an approximation of the WMD value.
+
+    :param d_model: Value d of a model trace
+    :type d_model: np.ndarray
+    :param d_real: Value d of a real trace
+    :type d_real: np.ndarray
+    :param distance_matrix: A distance matrix for Euclidean distances of
         every two actives in all traces
-    :return: the dissimilarity of two traces as a floating-point value
+    :type distance_matrix: np.ndarray
+    :return: The dissimilarity of two traces as a floating-point value
     """
 
     if (True in np.isnan(d_model)) or (True in np.isnan(d_real)):
         return _handle_empty_traces(d_model, d_real)
 
-    dist = ACT(d_model, d_real, distance_matrix, k)
+    dist = _act(d_model, d_real, distance_matrix, k)
 
     return dist

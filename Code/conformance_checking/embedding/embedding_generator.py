@@ -1,3 +1,7 @@
+"""
+.. warning:: This module is mainly designed for internal use.
+"""
+
 from conformance_checking.embedding.models import Act2Vec, Trace2Vec
 from conformance_checking.embedding.generate_training_data import (
     generate_activity_vocab,
@@ -12,17 +16,26 @@ import tensorflow as tf
 from collections import Counter
 
 
-"""
-This class is used to generate only activity embeddings from an event log.
-@param      log: where the activities and traces for embedding generation come from
-            act2vec_windows_size: window_size for act2vec training
-            num_ns: number of negative samples for act2vec training
-            auto_train: whether the training for activity embedding
-                        starts automatically when an instance of this class is created
-"""
-
-
 class ActivityEmbeddingGenerator:
+    """This class is used to generate only activity embeddings from an event log.
+
+    :param log: Where the activities and traces for embedding generation come from
+    :type log: List[List[str]]
+    :param act2vec_windows_size: Window size for act2vec training
+    :type act2vec_windows_size: int
+    :param num_ns: Number of negative samples for act2vec training
+    :type num_ns: int
+    :param auto_train: Whether the training for activity embedding starts automatically
+        when an instance of this class is created
+    :type auto_train: bool
+    :param num_epochs: Number of epochs to train
+    :type num_epochs: int
+    :param batch_size: Size of mini-batches during training
+    :type batch_size: int
+    :param embedding_size: Length of the generated embeddings
+    :type embedding_size: int
+    """
+
     def __init__(
         self,
         log,
@@ -50,11 +63,10 @@ class ActivityEmbeddingGenerator:
             # flag that inidicates whether the model is already trained
             self.trained = False
 
-    """
-    this function starts to train the model
-    """
-
     def start_training(self):
+        """
+        This function trains the model.
+        """
         # create vocabulary for activities
         self.act_vocab = generate_activity_vocab(self.log)
 
@@ -69,7 +81,7 @@ class ActivityEmbeddingGenerator:
 
         # generate embeddings
         print("TRAIN ACT2VEC MODEL")
-        self.activity_embedding = self.train_model(
+        self.activity_embedding = self._train_model(
             self.act2vec_training_data["targets"],
             self.act2vec_training_data["contexts"],
             self.act2vec_training_data["labels"],
@@ -80,17 +92,7 @@ class ActivityEmbeddingGenerator:
             self.embedding_size,
         )
 
-    """
-    this function trains an act2vec model and returns an embedding of activities
-    @param  targets, contexts, labels: these are results of generating training data
-            from an event log
-            vocab: activity vocabulary, an uniquely indexed collection of activities
-            from an event log, which was used to generate training data
-            num_ns: number of desired negative samples for one positive skip-gram
-            batch_size, buffer_size, embedding_dim : set as default
-    """
-
-    def train_model(
+    def _train_model(
         self,
         targets,
         contexts,
@@ -102,6 +104,16 @@ class ActivityEmbeddingGenerator:
         embedding_dim=128,
         buffer_size=10000,
     ):
+        """This function trains an act2vec model and returns an embedding of activities.
+
+        :param targets, contexts, labels: These are results of generating training data
+            from an event log
+        :param vocab: Activity vocabulary, an uniquely indexed collection of activities
+            from an event log, which was used to generate training data
+        :param num_ns: Number of desired negative samples for one positive skip-gram
+            batch_size, buffer_size, embedding_dim : set as default
+        """
+
         self.trained = True
 
         self.act2vec_dataset = tf.data.Dataset.from_tensor_slices(
@@ -131,9 +143,8 @@ class ActivityEmbeddingGenerator:
         training. The training dataset is used because act2vec is an unsupervised
         algorithm and therefore no heldout dataset is used for evaluation.
 
-        Returns:
-            score (float): accuracy score of the evaluation.
-
+        :return: The accuracy score of the evaluation
+        :rtype: float
         """
         if not self.trained:
             raise ModelNotTrainedError(
@@ -144,11 +155,18 @@ class ActivityEmbeddingGenerator:
 
         return scores[1]
 
-    """
-    this function returns an embedding matrix of activities
-    """
-
     def get_activity_embedding(self, model_log, real_log):
+        """This function returns the embeddings for the activities.
+
+        :param model_log: The model log of traces.
+        :type model_log: List[List[str]]
+        :param real_log: The real log of traces.
+        :type real_log: List[List[str]]
+
+        :return: The activity frequencies per trace in both model and real log and
+           the embedding matrix.
+        :rtype: Tuple[Dict[int, int], Dict[int, int], np.ndarray]
+        """
         if not self.trained:
             raise ModelNotTrainedError(
                 "model for activity embeddings is not trained yet"
@@ -178,16 +196,24 @@ class ActivityEmbeddingGenerator:
             return model_frequency, real_frequency, self.activity_embedding
 
 
-"""
-This class is used to generate only trace embeddings from an event log.
-@param      log: where the activities and traces for embedding generation come from
-            trace2vec_windows_size: window_size for trace2vec training
-            auto_train: whether the training for trace embedding starts
-                        automatically when an instance of this class is created
-"""
-
-
 class TraceEmbeddingGenerator:
+    """This class is used to generate only trace embeddings from an event log.
+
+    :param log: Where the activities and traces for embedding generation come from
+    :type log: List[List[str]]
+    :param trace2vec_windows_size: Window size for trace2vec training
+    :type trace2vec_windows_size: int
+    :param auto_train: Whether the training for trace embedding starts automatically
+        when an instance of this class is created
+    :type auto_train: bool
+    :param num_epochs: Number of epochs to train
+    :type num_epochs: int
+    :param batch_size: Size of mini-batches during training
+    :type batch_size: int
+    :param embedding_size: Length of the generated embeddings
+    :type embedding_size: int
+    """
+
     def __init__(
         self,
         log,
@@ -213,11 +239,10 @@ class TraceEmbeddingGenerator:
         else:
             self.trained = False
 
-    """
-    this function starts to train model
-    """
-
     def start_training(self):
+        """
+        This function trains the model.
+        """
         # create vocabulary for activities and traces
         self.act_vocab = generate_activity_vocab(self.log)
         self.trace_vocab = generate_trace_vocab(self.log, self.act_vocab)
@@ -232,7 +257,7 @@ class TraceEmbeddingGenerator:
         )
 
         print("TRAIN TRACE2VEC MODEL")
-        self.trace_embedding = self.train_model(
+        self.trace_embedding = self._train_model(
             self.trace2vec_training_data["targets"],
             self.trace2vec_training_data["contexts"],
             self.trace2vec_training_data["labels"],
@@ -244,19 +269,7 @@ class TraceEmbeddingGenerator:
             self.embedding_size,
         )
 
-    """
-    this function trains an trace2vec model and returns an embedding of traces
-    @param  targets, contexts, labels: these are results of generating training data
-            from an event log
-            act_vocab: activity vocabulary, an uniquely indexed collection of
-            activities from an event log, which was used to generate training data
-            trace_vocab: trace vocabulary, an uniquely indexed collection of traces
-            from an event log, which was used to generate training data
-            window_size: window size needed for computing context size
-            batch_size, buffer_size, embedding_dim : set as default
-    """
-
-    def train_model(
+    def _train_model(
         self,
         targets,
         contexts,
@@ -269,6 +282,17 @@ class TraceEmbeddingGenerator:
         embedding_dim=128,
         buffer_size=10000,
     ):
+        """This function trains an trace2vec model and returns an embedding of traces.
+
+        :param targets, contexts, labels: These are results of generating training data
+            from an event log
+        :param act_vocab: Activity vocabulary, an uniquely indexed collection of
+            activities from an event log, which was used to generate training data
+        :param trace_vocab: Trace vocabulary, an uniquely indexed collection of traces
+            from an event log, which was used to generate training data
+        :param window_size: Window size needed for computing context size
+        :param batch_size, buffer_size, embedding_dim: Set as default
+        """
         self.trained = True
 
         self.trace2vec_dataset = tf.data.Dataset.from_tensor_slices(
@@ -299,9 +323,8 @@ class TraceEmbeddingGenerator:
         is an unsupervised algorithm and therefore no heldout dataset is used
         for evaluation.
 
-        Returns:
-            score (float): accuracy score of the evaluation.
-
+        :return: accuracy score of the evaluation
+        :rtype: float
         """
 
         if not self.trained:
@@ -311,11 +334,17 @@ class TraceEmbeddingGenerator:
 
         return scores[1]
 
-    """
-    this function returns an embedding matrix of traces
-    """
-
     def get_trace_embedding(self, model_log, real_log):
+        """This function returns the embeddings for the traces.
+
+        :param model_log: The model log of traces.
+        :type model_log: List[List[str]]
+        :param real_log: The real log of traces.
+        :type real_log: List[List[str]]
+
+        :return: The embeddings of the traces in the model and real log.
+        :rtype: Tuple[np.ndarray, np.ndarray]
+        """
         if not self.trained:
             raise ModelNotTrainedError("model for trace embeddings is not trained yet")
         else:
@@ -336,7 +365,7 @@ class TraceEmbeddingGenerator:
 
 class ModelNotTrainedError(Exception):
     """
-    custom error class for ModelNotTrainedError
+    Thrown if a model is used prior to training.
     """
 
     def __init__(self, *args):
