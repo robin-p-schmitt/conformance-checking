@@ -19,8 +19,12 @@ activities = set([act for trace in log for act in trace])
 
 
 def test_embeddings_generator():
-    trace2vec_gen_trained = TraceEmbeddingGenerator(log, auto_train=True)
-    act2vec_gen_trained = ActivityEmbeddingGenerator(log, auto_train=True)
+    trace2vec_gen_trained = TraceEmbeddingGenerator(
+        log, auto_train=True, embedding_size=16
+    )
+    act2vec_gen_trained = ActivityEmbeddingGenerator(
+        log, auto_train=True, embedding_size=16
+    )
 
     # assert accuracy of trace2vec
     trace2vec_acc = trace2vec_gen_trained.evaluate_model()
@@ -38,15 +42,13 @@ def test_embeddings_generator():
     assert (
         trace2vec_acc > 0.85
         and act2vec_acc > 0.75
-        and (
-            type(trace_embeddings) == np.ndarray and trace_embeddings.shape == (5, 128)
-        )
+        and (type(trace_embeddings) == np.ndarray and trace_embeddings.shape == (5, 16))
         and (
             type(act_embeddings) == np.ndarray
             and act_embeddings.shape
             == (
                 len(activities) + 1,
-                128,
+                16,
             )
         )
     )
