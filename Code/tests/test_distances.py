@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from conformance_checking.distances import calc_wmd, calc_ict, calc_euclidean, calc_d
+from conformance_checking.distances import calc_wmd, calc_ict, calc_euclidean, _calc_d
 
 
 def test_wmd():
@@ -15,8 +15,8 @@ def test_wmd():
 
     # calc d for embeddings
     vocab_len = len(context)
-    d_model = calc_d(model_embedding, vocab_len)
-    d_real = calc_d(real_embedding, vocab_len)
+    d_model = _calc_d(model_embedding, vocab_len)
+    d_real = _calc_d(real_embedding, vocab_len)
 
     assert calc_wmd(d_model[0], d_real[0], distance_matrix) == pytest.approx(2.5)
 
@@ -32,8 +32,8 @@ def test_ict():
 
     # calc d for embeddings
     vocab_len = len(context)
-    d_model = calc_d(model_embedding, vocab_len)
-    d_real = calc_d(real_embedding, vocab_len)
+    d_model = _calc_d(model_embedding, vocab_len)
+    d_real = _calc_d(real_embedding, vocab_len)
 
     assert calc_ict(d_model[0], d_real[0], distance_matrix) == pytest.approx(2.5)
 
@@ -49,7 +49,7 @@ def test_ict2():
 
     # calc d for embeddings
     vocab_len = len(context)
-    d_model = calc_d(model_embedding, vocab_len)
-    d_real = calc_d(real_embedding, vocab_len)
+    d_model = _calc_d(model_embedding, vocab_len)
+    d_real = _calc_d(real_embedding, vocab_len)
 
     assert calc_ict(d_model[0], d_real[0], distance_matrix) == pytest.approx(500)
