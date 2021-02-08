@@ -13,8 +13,7 @@ absPath = os.path.abspath(__file__)
 fileDir = os.path.dirname(absPath)
 code = os.path.dirname(fileDir)
 data = os.path.join(code, "data")
-log = import_xes(os.path.join(data, "BPI_Challenge_2012.xes"), "concept:name")
-log = log[:1000]
+log = import_xes(os.path.join(data, "BPI_Challenge_2012.xes"), "concept:name", 1000)
 activities = set([act for trace in log for act in trace])
 
 
@@ -30,9 +29,11 @@ def test_embeddings_generator():
 
     # assert type and shape of trace embeddings
     test_log = log[:5]
-    trace_embeddings, _ = trace2vec_gen_trained.get_trace_embedding(test_log, test_log)
+    trace_embeddings, _ = trace2vec_gen_trained.get_trace_embedding(
+        test_log, test_log, True
+    )
     _, _, act_embeddings = act2vec_gen_trained.get_activity_embedding(
-        test_log, test_log
+        test_log, test_log, True
     )
 
     assert (
@@ -50,6 +51,11 @@ def test_embeddings_generator():
             )
         )
     )
+
+    for emb in trace_embeddings:
+        assert np.linalg.norm(emb) == pytest.approx(0.5)
+    for emb in act_embeddings:
+        assert np.linalg.norm(emb) == pytest.approx(0.5)
 
 
 def test_exceptions():
