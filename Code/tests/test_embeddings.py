@@ -13,8 +13,7 @@ absPath = os.path.abspath(__file__)
 fileDir = os.path.dirname(absPath)
 code = os.path.dirname(fileDir)
 data = os.path.join(code, "data")
-log = import_xes(os.path.join(data, "BPI_Challenge_2012.xes"), "concept:name")
-log = log[:1000]
+log = import_xes(os.path.join(data, "BPI_Challenge_2012.xes"), "concept:name", limit=1000)
 activities = set([act for trace in log for act in trace])
 
 
@@ -80,3 +79,23 @@ def test_exceptions():
         ModelNotTrainedError, match="model for trace embeddings is not trained yet"
     ):
         trace2vec_gen_not_trained.get_trace_embedding([], [])
+
+    with pytest.raises(
+            ValueError, match="parameter 'training_verbose' needs to be between 0 and 3"
+    ):
+        ActivityEmbeddingGenerator([[]], training_verbose=-1)
+
+    with pytest.raises(
+            ValueError, match="parameter 'training_verbose' needs to be between 0 and 3"
+    ):
+        ActivityEmbeddingGenerator([[]], training_verbose=4)
+
+    with pytest.raises(
+        ValueError, match="parameter 'training_verbose' needs to be between 0 and 3"
+    ):
+        TraceEmbeddingGenerator([[]], training_verbose=-1)
+
+    with pytest.raises(
+            ValueError, match="parameter 'training_verbose' needs to be between 0 and 3"
+    ):
+        TraceEmbeddingGenerator([[]], training_verbose=4)
