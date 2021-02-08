@@ -199,9 +199,8 @@ class ActivityEmbeddingGenerator:
             embeddings = self.activity_embedding
             if norm:
                 # normalize each embedding to have length 0.5
-                embeddings = np.array(
-                    [emb / (2 * np.linalg.norm(emb)) for emb in embeddings]
-                )
+                norms = np.linalg.norm(embeddings, axis=1)
+                embeddings = embeddings / (2 * norms[:, None])
 
             return model_frequency, real_frequency, embeddings
 
@@ -372,9 +371,8 @@ class TraceEmbeddingGenerator:
             embeddings = self.trace_embedding
             if norm:
                 # normalize each embedding to have length 0.5
-                embeddings = np.array(
-                    [emb / (2 * np.linalg.norm(emb)) for emb in embeddings]
-                )
+                norms = np.linalg.norm(embeddings, axis=1)
+                embeddings = embeddings / (2 * norms[:, None])
 
             model_emb = embeddings[model_indices]
             real_emb = embeddings[real_indices]
