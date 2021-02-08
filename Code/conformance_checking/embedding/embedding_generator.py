@@ -35,17 +35,20 @@ class ActivityEmbeddingGenerator:
     :type batch_size: int
     :param embedding_size: Length of the generated embeddings
     :type embedding_size: int
+    :param training_verbose: 0-3 for the verbosity of the output during training
+    :type training_verbose: int
     """
 
     def __init__(
         self,
         log,
-        act2vec_windows_size=2,
-        num_ns=2,
+        act2vec_windows_size=3,
+        num_ns=5,
         auto_train=False,
-        num_epochs=10,
+        num_epochs=100,
         batch_size=1024,
-        embedding_size=128,
+        embedding_size=16,
+        training_verbose=1,
     ):
         # log is expected to be a data type of List[List[str]]
         self.log = log
@@ -56,6 +59,10 @@ class ActivityEmbeddingGenerator:
         self.batch_size = batch_size
         self.embedding_size = embedding_size
         self.act2vec_training_data = {}
+
+        if training_verbose < 0 or training_verbose > 3:
+            raise ValueError("parameter 'training_verbose' needs to be between 0 and 3")
+        self.training_verbose = training_verbose
 
         if auto_train:
             # generate embeddings
@@ -91,6 +98,7 @@ class ActivityEmbeddingGenerator:
             self.batch_size,
             self.num_epochs,
             self.embedding_size,
+            verbose=self.training_verbose,
         )
 
     def _train_model(
@@ -104,6 +112,7 @@ class ActivityEmbeddingGenerator:
         num_epochs=10,
         embedding_dim=128,
         buffer_size=10000,
+        verbose=1,
     ):
         """This function trains an act2vec model and returns an embedding of activities.
 
@@ -132,7 +141,7 @@ class ActivityEmbeddingGenerator:
             metrics=["accuracy"],
         )
 
-        self.act2vec.fit(self.act2vec_dataset, epochs=num_epochs, verbose=0)
+        self.act2vec.fit(self.act2vec_dataset, epochs=num_epochs, verbose=verbose)
 
         # we need to return embedding!!
         return self.act2vec.layers[0].get_weights()[0]
@@ -221,16 +230,19 @@ class TraceEmbeddingGenerator:
     :type batch_size: int
     :param embedding_size: Length of the generated embeddings
     :type embedding_size: int
+    :param training_verbose: 0-3 for the verbosity of the output during training
+    :type training_verbose: int
     """
 
     def __init__(
         self,
         log,
-        trace2vec_windows_size=2,
+        trace2vec_windows_size=3,
         auto_train=False,
-        num_epochs=10,
+        num_epochs=300,
         batch_size=1024,
-        embedding_size=128,
+        embedding_size=16,
+        training_verbose=1,
     ):
         # log is expected to be a data type of List[List[str]]
         self.log = log
@@ -240,6 +252,10 @@ class TraceEmbeddingGenerator:
         self.batch_size = batch_size
         self.embedding_size = embedding_size
         self.trace2vec_training_data = {}
+
+        if training_verbose < 0 or training_verbose > 3:
+            raise ValueError("parameter 'training_verbose' needs to be between 0 and 3")
+        self.training_verbose = training_verbose
 
         if auto_train:
             # generate embeddings
@@ -276,6 +292,7 @@ class TraceEmbeddingGenerator:
             self.batch_size,
             self.num_epochs,
             self.embedding_size,
+            verbose=self.training_verbose,
         )
 
     def _train_model(
@@ -290,6 +307,7 @@ class TraceEmbeddingGenerator:
         num_epochs=10,
         embedding_dim=128,
         buffer_size=10000,
+        verbose=1,
     ):
         """This function trains an trace2vec model and returns an embedding of traces.
 
@@ -320,7 +338,7 @@ class TraceEmbeddingGenerator:
             metrics=["accuracy"],
         )
 
-        self.trace2vec.fit(self.trace2vec_dataset, epochs=num_epochs, verbose=0)
+        self.trace2vec.fit(self.trace2vec_dataset, epochs=num_epochs, verbose=verbose)
 
         return self.trace2vec.layers[1].get_weights()[0]
 
