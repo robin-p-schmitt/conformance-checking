@@ -34,6 +34,8 @@ class ActivityEmbeddingGenerator:
     :type batch_size: int
     :param embedding_size: Length of the generated embeddings
     :type embedding_size: int
+    :param training_verbose: 0-3 for the verbosity of the output during training
+    :type training_verbose: int
     """
 
     def __init__(
@@ -219,6 +221,8 @@ class TraceEmbeddingGenerator:
     :type batch_size: int
     :param embedding_size: Length of the generated embeddings
     :type embedding_size: int
+    :param training_verbose: 0-3 for the verbosity of the output during training
+    :type training_verbose: int
     """
 
     def __init__(
