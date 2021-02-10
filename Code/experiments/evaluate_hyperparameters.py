@@ -18,8 +18,7 @@ def load_data():
     # file path
     absPath = os.path.abspath(__file__)
     fileDir = os.path.dirname(absPath)
-    conformance = os.path.dirname(fileDir)
-    code = os.path.dirname(conformance)
+    code = os.path.dirname(fileDir)
     data = os.path.join(code, "data")
 
     # load the first 2000 traces of the example log
@@ -173,7 +172,7 @@ def save_results(parameters, results, model):
         plt.ylabel("accuracy")
         plt.xticks(parameters[key])
         plt.plot(parameters[key], results[key])
-        path = "conformance_checking/embedding/hyperparameter_eval/"
+        path = "experiments/hyperparameter_eval/"
         plt.savefig(path + "{}/{}_eval.png".format(model, key))
 
 
