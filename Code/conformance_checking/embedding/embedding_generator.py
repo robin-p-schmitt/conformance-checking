@@ -109,8 +109,8 @@ class ActivityEmbeddingGenerator:
         vocab,
         num_ns,
         batch_size=1024,
-        num_epochs=10,
-        embedding_dim=128,
+        num_epochs=100,
+        embedding_dim=16,
         buffer_size=10000,
         verbose=1,
     ):
@@ -304,8 +304,8 @@ class TraceEmbeddingGenerator:
         trace_vocab,
         window_size,
         batch_size=1024,
-        num_epochs=10,
-        embedding_dim=128,
+        num_epochs=300,
+        embedding_dim=16,
         buffer_size=10000,
         verbose=1,
     ):
