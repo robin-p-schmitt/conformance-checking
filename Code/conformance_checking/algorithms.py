@@ -63,7 +63,7 @@ class Act2VecWmdConformance(EmbeddingConformance):
         emb_gen.start_training()
 
         model_embedding, real_embedding, context = emb_gen.get_activity_embedding(
-            model_traces, real_traces
+            model_traces, real_traces, norm=True
         )
         dist_matrix = calc_euclidean(context)
         model_embedding = _calc_d(model_embedding, len(dist_matrix))
@@ -150,7 +150,7 @@ class Act2VecIctConformance(EmbeddingConformance):
         # return frequency tables for the model log and the real log
         # and an embedding lookup table
         model_embedding, real_embedding, context = emb_gen.get_activity_embedding(
-            model_traces, real_traces
+            model_traces, real_traces, norm=True
         )
         dist_matrix = calc_euclidean(context)
         model_embedding = _calc_d(model_embedding, len(dist_matrix))
