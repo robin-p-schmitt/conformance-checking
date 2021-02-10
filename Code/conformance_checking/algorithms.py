@@ -23,11 +23,11 @@ class Act2VecWmdConformance(EmbeddingConformance):
 
     def __init__(
         self,
-        window_size=2,
-        num_negative=2,
-        num_epochs=10,
+        window_size=3,
+        num_negative=5,
+        num_epochs=100,
         batch_size=1024,
-        embedding_size=128,
+        embedding_size=16,
     ):
         super(Act2VecWmdConformance, self).__init__()
         self.window_size = window_size
@@ -107,11 +107,11 @@ class Act2VecIctConformance(EmbeddingConformance):
     def __init__(
         self,
         k=3,
-        window_size=2,
-        num_negative=2,
-        num_epochs=10,
+        window_size=3,
+        num_negative=5,
+        num_epochs=100,
         batch_size=1024,
-        embedding_size=128,
+        embedding_size=16,
     ):
         super(Act2VecIctConformance, self).__init__()
         self.k = k
@@ -187,7 +187,7 @@ class Trace2VecCosineConformance(EmbeddingConformance):
     """
 
     def __init__(
-        self, window_size=2, num_epochs=10, batch_size=1024, embedding_size=128
+        self, window_size=3, num_epochs=300, batch_size=1024, embedding_size=16
     ):
         super(Trace2VecCosineConformance, self).__init__()
         self.window_size = window_size
