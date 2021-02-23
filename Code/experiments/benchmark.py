@@ -165,7 +165,7 @@ def to_prec_fit(args):
 def reject_outliers(data, m=2.0):
     d = np.abs(data - np.median(data))
     mdev = np.median(d)
-    s = d/mdev if mdev else 0.
+    s = d / mdev if mdev else 0.0
     return data[s < m]
 
 
