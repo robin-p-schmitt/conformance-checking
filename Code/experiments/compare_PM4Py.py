@@ -4,8 +4,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pm4py.objects.log.importer.xes import importer as xes_importer
 from pm4py.evaluation.replay_fitness import evaluator as replay_fitness_evaluator
-from pm4py.algo.conformance.decomp_alignments import algorithm as decomp_alignments
-from pm4py.evaluation.replay_fitness import evaluator as rp_fitness_evaluator
 from pm4py.evaluation.precision import evaluator as precision_evaluator
 from pm4py.statistics.variants.log import get as variants_module
 from pm4py.simulation.playout import simulator
@@ -68,38 +66,6 @@ def token_based_replay(real_logs, petri_nets):
     )
 
 
-def decomposition_of_alignments(real_logs, petri_nets):
-    # can only calculate the first two variants, and the results are wired
-    # may because some petri nets are not easy sound nets?
-    dic = {}
-    for ind, variant in enumerate(variants):
-        net, im, fm = petri_nets[ind]
-        fitness = []
-        for i in range(8):
-            conf = decomp_alignments.apply(
-                real_logs[i],
-                net[i],
-                im[i],
-                fm[i],
-                parameters={
-                    decomp_alignments.Variants.RECOMPOS_MAXIMAL.value.
-                    Parameters.PARAM_THRESHOLD_BORDER_AGREEMENT: 2
-                },
-            )
-            fitness.append(
-                rp_fitness_evaluator.evaluate(
-                    conf, variant=rp_fitness_evaluator.Variants.ALIGNMENT_BASED
-                )["averageFitness"]
-            )
-        dic[variant] = fitness
-    plot(
-        pd.DataFrame(dic, index=list(range(1, 9))),
-        "Fitness using Decomposition of Alignments",
-        "decomposition_of_alignments.png",
-        ylabel="Fitness",
-    )
-
-
 def et_conformance(real_logs, petri_nets):
     dic = {}
     for ind, variant in enumerate(variants):
@@ -143,8 +109,7 @@ def earth_mover_distance(real_logs, petri_nets):
                 im[j],
                 fm[j],
                 parameters={
-                    simulator.Variants.STOCHASTIC_PLAYOUT.
-                    value.Parameters.LOG: playout_log
+                    simulator.Variants.STOCHASTIC_PLAYOUT.value.Parameters.LOG: playout_log  # noqa: E501
                 },
                 variant=simulator.Variants.STOCHASTIC_PLAYOUT,
             )
