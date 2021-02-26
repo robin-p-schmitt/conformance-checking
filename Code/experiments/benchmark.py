@@ -161,6 +161,14 @@ def to_prec_fit(args):
     )
 
 
+# https://stackoverflow.com/a/16562028
+def reject_outliers(data, m=2.0):
+    d = np.abs(data - np.median(data))
+    mdev = np.median(d)
+    s = d / mdev if mdev else 0.0
+    return data[s < m]
+
+
 def plot():  # noqa: C901
     benchmark = np.load("experiments/benchmark/benchmark.npz", allow_pickle=True)
     precision = benchmark["precision"]
@@ -185,7 +193,6 @@ def plot():  # noqa: C901
             ax_prec.set_title(variants[j])
             if j == 0:
                 ax_prec.set_ylabel("Precision")
-            ax_prec.set_xlabel("Logs")
             ax_prec.boxplot(precision[:, j, index, :].T, whis=(0, 100))
             ax_fit = axs[1][j]
             if j == 0:
@@ -202,7 +209,12 @@ def plot():  # noqa: C901
         fig_axs: Tuple[plt.Figure, plt.Axes] = plt.subplots(nrows=1, ncols=1)
         fig, ax = fig_axs
         fig.suptitle("Avg. time per method")
-        avg_time = np.average(time, axis=(0, 1, 3))
+        times_per_algorithm = np.transpose(time, (2, 0, 1, 3)).reshape(3, -1)
+        avg_time = np.zeros((3,))
+        for i, time_per_algorithm in enumerate(times_per_algorithm):
+            no_outliers = reject_outliers(time_per_algorithm, m=4)
+            print(len(time_per_algorithm) - len(no_outliers))
+            avg_time[i] = np.average(no_outliers)
         ratio_time = avg_time / avg_time.max()
         x = np.arange(3)
         ax.bar(x, ratio_time)
@@ -230,7 +242,7 @@ def plot():  # noqa: C901
         fig, axs = fig_axs
         fig.suptitle("Time over various complexity metrics")
         num_items = len(ids) * len(variants)
-        avg_time = np.average(time, axis=3)
+        avg_time = np.median(time, axis=3)
         x_by_metric = np.zeros((len(types), len(algorithms), num_items))
         y_by_metric = np.zeros((len(types), len(algorithms), num_items))
         for i, (key, _) in enumerate(types):
